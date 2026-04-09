@@ -1,0 +1,233 @@
+{
+  "action_id": "squat",
+  "action_name": "Squat",
+  "action_name_zh": "深蹲",
+  "description": "深蹲动作分析配置 - 包含完整的检测项参数和错误判断阈值",
+  "version": "1.0.0",
+  "created_at": "2026-04-07T10:00:00",
+  "updated_at": "2026-04-07T10:00:00",
+  "phases": [
+    {
+      "phase_id": "standing",
+      "phase_name": "站立起始",
+      "description": "动作开始前的站立姿势",
+      "detection_params": {
+        "knee_angle_threshold": 160,
+        "hip_angle_threshold": 170
+      }
+    },
+    {
+      "phase_id": "descent",
+      "phase_name": "下蹲过程",
+      "description": "从站立到下蹲最低点的过程",
+      "detection_params": {
+        "velocity_threshold": -5
+      }
+    },
+    {
+      "phase_id": "bottom",
+      "phase_name": "最低点",
+      "description": "深蹲的最深处，用于评估动作质量",
+      "detection_params": {
+        "min_knee_angle": 50,
+        "stability_window": 5
+      }
+    },
+    {
+      "phase_id": "ascent",
+      "phase_name": "站起过程",
+      "description": "从最低点回到站立的过程",
+      "detection_params": {
+        "velocity_threshold": 5
+      }
+    },
+    {
+      "phase_id": "completion",
+      "phase_name": "动作完成",
+      "description": "回到站立姿势",
+      "detection_params": {
+        "knee_angle_threshold": 160
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "knee_flexion",
+      "enabled": true,
+      "evaluation_phase": "bottom",
+      "thresholds": {
+        "target_value": 110,
+        "normal_range": [90, 120],
+        "excellent_range": [100, 120],
+        "good_range": [90, 130],
+        "pass_range": [70, 140]
+      },
+      "error_conditions": [
+        {
+          "error_id": "insufficient_depth",
+          "error_name": "深蹲深度不足",
+          "description": "膝关节屈曲角度不足，深蹲深度不够（最低点时应<90度）",
+          "severity": "medium",
+          "condition": {
+            "operator": "gt",
+            "value": 90,
+            "phase": "bottom"
+          }
+        }
+      ],
+      "custom_params": {
+        "use_3d": false,
+        "smooth_window": 3
+      },
+      "weight": 1.5
+    },
+    {
+      "metric_id": "knee_valgus",
+      "enabled": true,
+      "evaluation_phase": "descent",
+      "thresholds": {
+        "target_value": 0,
+        "normal_range": [-5, 10]
+      },
+      "error_conditions": [
+        {
+          "error_id": "knee_caving",
+          "error_name": "膝关节内扣",
+          "description": "膝关节过度内扣，可能增加ACL损伤风险",
+          "severity": "high",
+          "condition": {
+            "operator": "gt",
+            "value": 10,
+            "phase": "descent"
+          }
+        }
+      ],
+      "custom_params": {
+        "perspective_correction": true
+      },
+      "weight": 1.0
+    },
+    {
+      "metric_id": "trunk_lean",
+      "enabled": true,
+      "evaluation_phase": "bottom",
+      "thresholds": {
+        "target_value": 30,
+        "normal_range": [0, 45],
+        "excellent_range": [15, 35],
+        "good_range": [0, 45],
+        "pass_range": [0, 60]
+      },
+      "error_conditions": [
+        {
+          "error_id": "excessive_lean",
+          "error_name": "躯干过度前倾",
+          "description": "躯干前倾角度过大，可能增加腰椎压力",
+          "severity": "medium",
+          "condition": {
+            "operator": "gt",
+            "value": 45,
+            "phase": "bottom"
+          }
+        }
+      ],
+      "custom_params": {},
+      "weight": 1.0
+    },
+    {
+      "metric_id": "hip_flexion",
+      "enabled": true,
+      "evaluation_phase": "bottom",
+      "thresholds": {
+        "target_value": 80,
+        "normal_range": [60, 100]
+      },
+      "error_conditions": [
+        {
+          "error_id": "limited_hip_flexion",
+          "error_name": "髋关节活动受限",
+          "description": "髋关节屈曲角度不足，可能由髋屈肌紧张引起",
+          "severity": "medium",
+          "condition": {
+            "operator": "gt",
+            "value": 60,
+            "phase": "bottom"
+          }
+        }
+      ],
+      "custom_params": {},
+      "weight": 1.0
+    },
+    {
+      "metric_id": "ankle_dorsiflexion",
+      "enabled": true,
+      "evaluation_phase": "bottom",
+      "thresholds": {
+        "target_value": 20,
+        "normal_range": [15, 30]
+      },
+      "error_conditions": [
+        {
+          "error_id": "limited_dorsiflexion",
+          "error_name": "踝关节活动受限",
+          "description": "踝关节背屈不足，可能导致深蹲时脚跟抬起",
+          "severity": "medium",
+          "condition": {
+            "operator": "gt",
+            "value": 15,
+            "phase": "bottom"
+          }
+        }
+      ],
+      "custom_params": {},
+      "weight": 0.8
+    },
+    {
+      "metric_id": "lumbar_curvature",
+      "enabled": true,
+      "evaluation_phase": "bottom",
+      "thresholds": {
+        "target_value": 0.08,
+        "normal_range": [0, 0.15]
+      },
+      "error_conditions": [
+        {
+          "error_id": "lower_back_collapse",
+          "error_name": "塌腰",
+          "description": "腰椎曲率过大，核心未收紧",
+          "severity": "high",
+          "condition": {
+            "operator": "gt",
+            "value": 0.15,
+            "phase": "bottom"
+          }
+        }
+      ],
+      "custom_params": {
+        "requires_segmentation": true
+      },
+      "weight": 1.2
+    }
+  ],
+  "global_params": {
+    "min_phase_duration": 0.2,
+    "enable_phase_detection": true,
+    "use_viewpoint_analysis": true,
+    "auto_select_side": true,
+    "viewpoint_constraints": {
+      "sagittal": {
+        "supported_metrics": ["knee_flexion", "trunk_lean", "hip_flexion", "ankle_dorsiflexion"],
+        "unsupported_metrics": ["knee_valgus"]
+      },
+      "frontal": {
+        "supported_metrics": ["knee_valgus", "knee_symmetry"],
+        "unsupported_metrics": ["knee_flexion", "trunk_lean"]
+      }
+    }
+  },
+  "metadata": {
+    "author": "System",
+    "tags": ["lower_body", "strength", "functional"],
+    "difficulty": "intermediate"
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "action_id": "jumping_jack",
+  "action_name_zh": "开合跳",
+  "videos": [
+    {
+      "video_path": "videos/jumping_jack_std_01.mp4",
+      "tags": ["standard"],
+      "metadata": {"subject": "athlete_01", "quality": "good"}
+    },
+    {
+      "video_path": "videos/jumping_jack_std_02.mp4",
+      "tags": ["standard"],
+      "metadata": {"subject": "athlete_02", "quality": "good"}
+    },
+    {
+      "video_path": "videos/jumping_jack_std_03.mp4",
+      "tags": ["standard"],
+      "metadata": {"subject": "athlete_03", "quality": "good"}
+    },
+    {
+      "video_path": "videos/jumping_jack_err_knees_01.mp4",
+      "tags": ["error:knee_valgus"],
+      "metadata": {"error_type": "knee_valgus", "severity": "medium"}
+    },
+    {
+      "video_path": "videos/jumping_jack_err_knees_02.mp4",
+      "tags": ["error:knee_valgus"],
+      "metadata": {"error_type": "knee_valgus", "severity": "high"}
+    },
+    {
+      "video_path": "videos/jumping_jack_err_arms_01.mp4",
+      "tags": ["error:insufficient_arm_raise"],
+      "metadata": {"error_type": "arm_raise", "severity": "low"}
+    },
+    {
+      "video_path": "videos/jumping_jack_extreme_01.mp4",
+      "tags": ["extreme"],
+      "metadata": {"note": "completely_wrong_form"}
+    }
+  ],
+  "auto_approve": false,
+  "output_dir": "config/action_configs",
+  "fingerprint_db_path": "data/fingerprints",
+  "min_standard_samples": 3,
+  "enable_feature_validation": true,
+  "enable_error_learning": true
+}

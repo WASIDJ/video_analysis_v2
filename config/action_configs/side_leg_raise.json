@@ -1,0 +1,210 @@
+{
+  "action_id": "side_leg_raise",
+  "action_name": "Side Leg Raise",
+  "action_name_zh": "侧抬腿",
+  "description": "侧卧位髋外展动作，主要训练臀中肌和臀小肌，用于康复和体态矫正。",
+  "version": "1.0.0",
+  "created_at": "2024-01-15T10:00:00",
+  "updated_at": "2024-01-15T10:00:00",
+  "phases": [
+    {
+      "phase_id": "start",
+      "phase_name": "起始位置",
+      "description": "侧卧，双腿伸直并拢",
+      "detection_params": {
+        "hip_abduction_threshold": 10,
+        "position": "side_lying"
+      }
+    },
+    {
+      "phase_id": "lift",
+      "phase_name": "抬腿阶段",
+      "description": "上方腿向外展抬起",
+      "detection_params": {
+        "velocity_threshold": 2.0,
+        "driver_signal": "hip_abduction"
+      }
+    },
+    {
+      "phase_id": "hold",
+      "phase_name": "保持顶点",
+      "description": "在最高点保持",
+      "detection_params": {
+        "min_duration": 0.5,
+        "stability_window": 5
+      }
+    },
+    {
+      "phase_id": "lower",
+      "phase_name": "下放阶段",
+      "description": "控制下放回到起始位",
+      "detection_params": {
+        "velocity_threshold": -2.0,
+        "driver_signal": "hip_abduction"
+      }
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "hip_abduction",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "target_value": 45,
+        "normal_range": [30, 60],
+        "excellent_range": [40, 50],
+        "good_range": [30, 60],
+        "pass_range": [20, 70]
+      },
+      "error_conditions": [
+        {
+          "error_id": "insufficient_abduction",
+          "error_name": "外展不足",
+          "description": "髋关节外展角度不足，抬腿高度不够（应≥30度）",
+          "severity": "medium",
+          "condition": {
+            "operator": "lt",
+            "value": 30,
+            "phase": "hold"
+          }
+        },
+        {
+          "error_id": "excessive_abduction",
+          "error_name": "外展过度",
+          "description": "髋关节外展角度过大，可能借助躯干摆动（应≤70度）",
+          "severity": "low",
+          "condition": {
+            "operator": "gt",
+            "value": 70,
+            "phase": "hold"
+          }
+        }
+      ],
+      "custom_params": {
+        "use_3d": false,
+        "smooth_window": 3
+      },
+      "weight": 2.0
+    },
+    {
+      "metric_id": "trunk_lateral_flexion",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "target_value": 0,
+        "normal_range": [0, 10],
+        "excellent_range": [0, 5],
+        "good_range": [0, 10],
+        "pass_range": [0, 15]
+      },
+      "error_conditions": [
+        {
+          "error_id": "trunk_compensation",
+          "error_name": "躯干代偿",
+          "description": "躯干侧倾代偿，通过弯腰借力（应≤15度）",
+          "severity": "high",
+          "condition": {
+            "operator": "gt",
+            "value": 15,
+            "phase": "hold"
+          }
+        }
+      ],
+      "custom_params": {},
+      "weight": 1.5
+    },
+    {
+      "metric_id": "pelvic_obliquity",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "target_value": 0,
+        "normal_range": [0, 5],
+        "excellent_range": [0, 3],
+        "good_range": [0, 5],
+        "pass_range": [0, 10]
+      },
+      "error_conditions": [
+        {
+          "error_id": "pelvic_imbalance",
+          "error_name": "骨盆倾斜",
+          "description": "骨盆冠状面倾斜，出现髋上提（应≤10度）",
+          "severity": "medium",
+          "condition": {
+            "operator": "gt",
+            "value": 10,
+            "phase": "hold"
+          }
+        }
+      ],
+      "custom_params": {},
+      "weight": 1.5
+    },
+    {
+      "metric_id": "leg_elevation_height",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "target_value": 0.5,
+        "normal_range": [0.3, 0.7],
+        "excellent_range": [0.45, 0.6],
+        "good_range": [0.3, 0.7],
+        "pass_range": [0.2, 0.8]
+      },
+      "error_conditions": [],
+      "custom_params": {},
+      "weight": 1.0
+    },
+    {
+      "metric_id": "knee_flexion_compensation",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "target_value": 0,
+        "normal_range": [0, 10],
+        "excellent_range": [0, 5],
+        "good_range": [0, 15],
+        "pass_range": [0, 30]
+      },
+      "error_conditions": [
+        {
+          "error_id": "knee_flexion_cheating",
+          "error_name": "屈膝借力",
+          "description": "抬腿时膝关节屈曲，屈腿借力（应≤30度）",
+          "severity": "medium",
+          "condition": {
+            "operator": "gt",
+            "value": 30,
+            "phase": "hold"
+          }
+        }
+      ],
+      "custom_params": {},
+      "weight": 1.0
+    }
+  ],
+  "global_params": {
+    "min_phase_duration": 0.3,
+    "enable_phase_detection": true,
+    "use_viewpoint_analysis": true,
+    "auto_select_side": true,
+    "viewpoint_constraints": {
+      "frontal": {
+        "supported_metrics": ["hip_abduction", "trunk_lateral_flexion", "pelvic_obliquity"],
+        "unsupported_metrics": []
+      },
+      "sagittal": {
+        "supported_metrics": ["knee_flexion_compensation"],
+        "unsupported_metrics": ["hip_abduction", "trunk_lateral_flexion"]
+      }
+    }
+  },
+  "metadata": {
+    "author": "System",
+    "tags": ["lower_body", "hip", "rehabilitation", "stability"],
+    "difficulty": "beginner",
+    "primary_muscles": ["gluteus_medius", "gluteus_minimus", "tensor_fasciae_latae"],
+    "secondary_muscles": ["quadratus_lumborum", "obliques"],
+    "contraindications": ["hip_osteoarthritis", "trochanteric_bursitis"]
+  }
+}

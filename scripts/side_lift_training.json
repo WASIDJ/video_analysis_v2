@@ -1,0 +1,16 @@
+  {                                                                                                                                      
+    "action_id": "side_lift",                                                                                                       
+    "action_name_zh": "侧抬腿",                                                                                                          
+    "videos": [                                                                                                                          
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿1.mp4", "tags": ["error:leg_low"]},                                                                                
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿5.mp4", "tags": ["error:leg_low"]},                                                                                
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿3.mp4", "tags": ["standard"]},                                                                       
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿4.mp4", "tags": ["standard"]},
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿14.mp4", "tags": ["standard"]},                                                                                
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿6.mp4", "tags": ["standard"]},                                                                                
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿7.mp4", "tags": ["standard"]},                                                                       
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿8.mp4", "tags": ["standard"]},
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿9.mp4", "tags": ["extreme"]},                                                                       
+      {"video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/侧抬腿10.mp4", "tags": ["extreme"]}                                                                             
+    ]                                                                                                                                    
+  }  
