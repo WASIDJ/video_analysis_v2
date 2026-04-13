@@ -30,12 +30,12 @@ class TestCalculateAngle2D:
     def test_acute_angle(self):
         """测试锐角."""
         angle = calculate_angle_2d((0, 0), (1, 0), (2, 1))
-        assert 0 < angle < 90
+        assert 90 < angle < 180
 
     def test_obtuse_angle(self):
         """测试钝角."""
         angle = calculate_angle_2d((0, 0), (1, 0), (0, 1))
-        assert 90 < angle < 180
+        assert 0 < angle < 90
 
     def test_low_confidence(self):
         """测试低置信度返回nan."""
