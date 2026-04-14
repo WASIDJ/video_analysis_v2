@@ -1,319 +1,241 @@
 # 视频分析系统架构 V2.0
 
-## 架构核心设计原则
+## 架构目标
 
-### 1. 数据驱动（Data-Driven）
-- **Phase引擎**：通用状态机，通过JSON配置定义状态转移规则
-- **配置迭代**：支持通过训练数据自动更新参数
-- **零代码扩展**：新增动作无需编写Python代码
+当前架构目标是把动作训练与参数迭代拆成 4 个明确层次：
 
-### 2. 可扩展性（Extensibility）
-- **插件化设计**：新动作 = 配置文件 + 训练数据
-- **探索模式**：未知动作自动进入全量分析模式
-- **指纹系统**：动作特征可存储、可比较、可迭代
+1. **analysis**：从视频与姿态序列提取可比较特征
+2. **training**：从训练样本生成 candidate 配置
+3. **dataset**：管理样本、拆分、回流、待标注
+4. **iteration**：管理触发、评估、发布、回滚
 
-### 3. 持续学习（Continuous Learning）
-- **多标签支持**：标准动作、错误动作、极端动作、边缘动作
-- **增量统计**：聚合多个样本生成"金标准"
-- **参数触发器**：基于测试集表现自动触发参数更新
+这次 task1/task2 落地后，系统不再只是“训练一个配置”，而是具备了最小闭环：
 
----
+```text
+split -> evaluate -> feedback -> trigger -> compare -> promote/rollback
+```
 
 ## 模块架构
 
-```
+```text
 src/core/
-├── config/                    # 配置系统
-│   ├── models.py             # 数据模型（ActionConfig, MetricConfig等）
-│   ├── manager.py            # 配置管理器（支持探索模式）
-│   ├── validator.py          # 参数验证器
-│   └── recorder.py           # 执行记录器
+├── analysis/
+│   ├── fingerprint.py
+│   ├── exploration.py
+│   └── template_generator.py
 │
-├── phases/                    # Phase引擎（重构核心）
-│   ├── base.py               # 基类定义
-│   ├── generic_phase_detector.py  # 通用状态机引擎 ⭐NEW
-│   └── squat_phases.py       # 旧实现（待废弃）
+├── training/
+│   ├── pipeline.py
+│   ├── batch_processor.py
+│   ├── feature_validator.py
+│   └── error_learner.py
 │
-├── analysis/                  # 动作分析模块 ⭐NEW
-│   ├── fingerprint.py        # 动作指纹分析
-│   ├── exploration.py        # 探索模式
-│   └── template_generator.py # 模板自动生成
+├── dataset/
+│   ├── models.py
+│   ├── splitter.py
+│   ├── repository.py
+│   └── feedback_loop.py
 │
-├── metrics/                   # 检测项系统
-│   ├── definitions.py        # 检测项模板（无硬编码阈值）
-│   └── calculator.py         # 检测项计算器
+├── iteration/
+│   ├── models.py
+│   ├── job_store.py
+│   ├── queue.py
+│   ├── worker.py
+│   ├── service.py
+│   ├── runtime.py
+│   ├── state_machine.py
+│   ├── triggers.py
+│   ├── evaluator.py
+│   ├── versioning.py
+│   └── orchestrator.py
 │
-└── models/                    # 姿态估计模型
-    └── base.py               # 抽象基类
+├── config/
+│   ├── models.py
+│   ├── manager.py
+│   ├── validator.py
+│   └── recorder.py
+│
+├── metrics/
+├── phases/
+├── viewpoint/
+└── models/
 
-config/action_configs/         # 动作配置目录
-├── squat.json                # 深蹲配置（含Phase规则）
-├── generated/                # 自动生成的配置
-│   └── new_jump_v1.json
-└── pending/                  # 待审核的新动作
-    └── unknown_action_pending.json
+src/api/
+├── main.py
+├── endpoints.py
+└── schemas.py
+
+src/cli/
+└── iteration.py
 ```
 
----
+## task1: 视频数据管理
 
-## Phase引擎设计（Generic Phase Engine）
+### 1. 分层拆分
 
-### 核心思想
-将Phase检测从**硬编码逻辑**转变为**状态机执行器**：
+`DatasetSplitter` 负责按 `action_id + label` 进行分层拆分：
 
-```python
-# 旧方式：硬编码（不可扩展）
-class SquatPhaseDetector:
-    def detect(self, sequence):
-        if knee_angle < 160:  # 硬编码阈值
-            return "descent"
+- 保证 `train / validation / test` 互斥
+- 小样本组尽量覆盖所有 split
+- 固定随机种子时结果稳定
 
-# 新方式：配置驱动（可扩展）
-class GenericPhaseDetector:
-    def detect(self, sequence):
-        # 从JSON读取规则
-        # 规则1: 如果 knee_flexion 导数 < 0，则进入 descent
-        # 规则2: 如果 knee_flexion 达到局部最小值，则进入 bottom
+### 2. 仓储与持久化
+
+`DatasetRepository` 负责：
+
+- 样本注册
+- 状态管理
+- 待标注任务管理
+- JSON 序列化与反序列化
+- 导出下一轮训练样本
+
+### 3. 回流逻辑
+
+`FeedbackLoop` 处理测试集样本反馈：
+
+- `low confidence` -> `confusing_sample` + `queued_for_retraining`
+- `misclassified` -> `queued_for_retraining`
+- repeated misclassification -> `pending_annotation`
+
+### 4. 下一轮训练纳入规则
+
+当前默认纳入：
+
+- `ready`
+- `queued_for_retraining`
+
+当前默认排除：
+
+- `pending_annotation`
+
+这样可以避免把待人工确认标签的样本直接喂回训练集。
+
+## task2: 异步参数迭代触发器
+
+### 1. 迭代状态机
+
+`IterationStateMachine` 负责管理：
+
+- `pending -> running`
+- `running -> succeeded`
+- `running -> failed`
+- `running/pending -> cancelled`
+- retryable failure 时回到 `pending`
+
+### 2. 触发器
+
+`IterationTriggerEngine` 负责 3 类触发：
+
+- 新增样本数达到 20
+- 低置信样本达到 10
+- 距离上次训练超过 24 小时
+
+并通过 `snapshot_id` 做同窗口去重。
+
+### 3. 统一评估器
+
+`UnifiedEvaluator` 的职责是：
+
+- 对比 baseline 与 candidate
+- 识别关键指标回退
+- 生成 promotion decision
+- 提取低置信 / 误判样本作为反馈输入
+
+它不负责版本切换，也不负责样本落库。
+
+### 4. 版本管理
+
+`VersionStore` 管理训练产物谱系：
+
+- 注册 baseline / candidate
+- promote candidate
+- rollback to baseline
+- 持久化版本历史
+
+它负责版本关系与审计，不直接负责配置生成。
+
+### 5. 闭环编排
+
+`IterationOrchestrator` 把评估、版本切换和样本回流串起来：
+
+```text
+baseline evaluation + candidate evaluation
+  ↓
+UnifiedEvaluator.compare()
+  ↓
+IterationOrchestrator
+  ├─ promote -> VersionStore.promote_candidate()
+  ├─ reject  -> VersionStore.rollback_to()
+  └─ feedback -> FeedbackLoop.process_feedback()
 ```
 
-### JSON配置格式
+### 6. 执行面
 
-```json
-{
-  "action_id": "squat",
-  "phases": [
-    {
-      "phase_id": "standing",
-      "phase_name": "站立起始"
-    },
-    {
-      "phase_id": "descent",
-      "phase_name": "下蹲过程"
-    },
-    {
-      "phase_id": "bottom",
-      "phase_name": "最低点"
-    }
-  ],
-  "phase_transitions": [
-    {
-      "from": "standing",
-      "to": "descent",
-      "driver_signal": "knee_flexion",
-      "type": "derivative",
-      "params": {
-        "direction": "decreasing",
-        "threshold": -2.0
-      }
-    },
-    {
-      "from": "descent",
-      "to": "bottom",
-      "driver_signal": "knee_flexion",
-      "type": "extremum",
-      "params": {
-        "mode": "valley"
-      }
-    }
-  ]
-}
-```
+这次新增的执行面负责把“可比较的 candidate”推进成“可运行的 job”：
 
-### 转移条件类型
+- `IterationJobStore`：持久化 job payload 与状态
+- `IterationQueue`：in-memory async queue
+- `IterationWorker`：消费 job 并驱动状态机
+- `IterationService`：给 API/CLI 暴露统一 submit/status/run-once 入口
+- `IterationRuntime`：装配 repository / version_store / worker / service
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| `threshold` | 阈值比较 | `value > 160` |
-| `derivative` | 导数判断 | `d(value)/dt < 0` |
-| `extremum` | 极值点 | 局部最小/最大 |
-| `duration` | 持续时间 | 保持>0.5秒 |
-| `compound` | 复合条件 | 多条件组合 |
+当前执行面是**单进程、单队列、可测试**的最小实现，不假装自己是分布式调度系统。
 
----
+## API / CLI 入口
 
-## 探索模式（Exploration Mode）
+### API
 
-### 触发条件
-当 `ConfigManager.load_config(action_id, enable_exploration=True)` 找不到配置时：
+- `POST /api/v2/iteration/jobs`
+- `GET /api/v2/iteration/jobs/{job_id}`
 
-```python
-# 找不到配置，自动进入探索模式
-config = manager.load_config("new_unknown_action", enable_exploration=True)
-# 返回 ExplorationConfig，启用所有检测项
-```
+### CLI
 
-### 探索流程
+- `python manage_iteration.py enqueue --request-file request.json`
+- `python manage_iteration.py status --job-id <job_id>`
+- `python manage_iteration.py worker --once`
 
-```
-新视频输入
-    ↓
-探索模式激活
-    ↓
-1. 全量指标计算（所有MetricDefinition）
-    ↓
-2. 指纹提取（变化幅度、极值点、主导频率）
-    ↓
-3. 阶段候选检测（基于主导指标）
-    ↓
-4. 阈值建议生成（基于统计分析）
-    ↓
-5. 生成初始配置（JSON）
-    ↓
-保存到 pending/ 待审核
-```
+## 与原训练架构的关系
 
-### 动作指纹（ActionFingerprint）
+### 保持不变
 
-```python
-@dataclass
-class ActionFingerprint:
-    action_id: str
-    dominant_metrics: List[MetricFingerprint]  # 主导运动特征
-    secondary_metrics: List[MetricFingerprint]  # 次要特征
-    active_joints: List[str]                    # 活跃关节
-    symmetry_score: float                       # 对称性
-    tags: List[str]                             # ["standard", "error:knee_valgus"]
-```
+- `TrainingPipeline.generate_production_config()` 仍负责生成 candidate 配置
+- `ConfigManager` 仍负责动作配置读写
+- `ParameterRecorder` 仍适合记录执行事实
 
----
+### 新增职责
 
-## 参数迭代系统
+- dataset 层不再只是训练输入，而是显式维护回流与待标注状态
+- iteration 层不再是“抽象规划”，而是可测试的独立模块
 
-### 数据分类标签
+## 当前实现边界
 
-| 标签 | 用途 | 迭代目标 |
-|------|------|----------|
-| `standard` | 标准动作 | 构建金标准阈值 |
-| `error:{type}` | 错误动作 | 学习错误判断条件 |
-| `extreme` | 极端错误 | 定义边界值 |
-| `edge` | 边缘动作 | 细化判断依据 |
+### 已实现
 
-### 增量统计流程
+- task1 的最小闭环
+- task2 的最小闭环
+- iteration 执行面最小闭环
+- dataset/iteration API 与 CLI 入口
+- 单元测试与集成测试覆盖
+- 版本发布 / 回滚的文件持久化
 
-```python
-# 1. 收集标准动作指纹
-standard_fps = db.get_fingerprints_by_label("standard", action_id="squat")
+### 尚未实现
 
-# 2. 聚合统计
-agg = db.aggregate_by_action("squat", label="standard")
-# 生成: mean, std, percentiles for each metric
+- 真实异步 worker / queue
+- 多进程/分布式 queue
+- 真实训练 trial 搜索器
+- 统一 artifact registry
+- 完整 HTTP 生命周期 smoke test
 
-# 3. 更新配置阈值
-manager.update_metric_thresholds(
-    action_id="squat",
-    metric_id="knee_flexion",
-    new_thresholds={
-        "target_value": 110.0,
-        "normal_range": (90, 120),  # 基于聚合结果
-        "excellent_range": (100, 120),
-    },
-    source="training"  # 标记为训练数据更新
-)
-```
+## 关键验证
 
-### 触发器设计
+当前实现已通过以下测试面验证：
 
-```python
-class ParameterIterationTrigger:
-    """参数迭代触发器"""
-
-    def check_and_trigger(self, action_id: str) -> bool:
-        # 1. 检查样本量
-        if db.get_sample_count(action_id, "standard") < 10:
-            return False
-
-        # 2. 在测试集上评估当前参数
-        current_score = self.evaluate_current_params(action_id)
-
-        # 3. 计算新参数（基于增量统计）
-        new_params = self.compute_new_params(action_id)
-        new_score = self.evaluate_params(action_id, new_params)
-
-        # 4. 判断是否更新
-        improvement = (new_score - current_score) / current_score
-        if improvement > 0.05:  # 提升超过5%
-            self.apply_params(action_id, new_params)
-            return True
-        return False
-```
-
----
-
-## 使用示例
-
-### 1. 新动作探索
-
-```python
-from core.config.manager import ConfigManager
-from core.analysis.exploration import ExplorationAnalyzer
-
-# 探索新动作
-analyzer = ExplorationAnalyzer()
-result = analyzer.explore(
-    pose_sequence=sequence,
-    suggested_name="jumping_jack"
-)
-
-# 查看发现的特征
-print(f"主导指标: {result.suggested_metrics}")
-print(f"建议阶段: {result.suggested_phases}")
-print(f"置信度: {result.confidence}")
-
-# 生成配置
-from core.analysis.template_generator import create_exploration_template
-filepath = create_exploration_template(result)
-print(f"配置已保存到: {filepath}")
-# 输出: config/action_configs/pending/jumping_jack_pending.json
-```
-
-### 2. 配置审核与激活
-
-```python
-manager = ConfigManager()
-
-# 查看待审核动作
-pending = manager.list_pending_actions()
-# [{"action_id": "jumping_jack", "confidence": 0.72}]
-
-# 批准动作
-manager.approve_pending_action("jumping_jack")
-# 配置移动到主目录，可正式使用
-```
-
-### 3. 通过训练迭代参数
-
-```python
-# 收集多个标准动作样本
-for video in standard_videos:
-    fingerprint = analyzer.analyze(video, tags=["standard"])
-    db.add_fingerprint(fingerprint, label="standard")
-
-# 触发迭代更新
-manager.update_metric_thresholds(
-    action_id="squat",
-    metric_id="knee_flexion",
-    new_thresholds=compute_from_aggregated_stats(db),
-    source="training"
-)
-```
-
----
-
-## 与V1架构对比
-
-| 特性 | V1 | V2 |
-|------|-----|-----|
-| 新增动作成本 | 写Python代码 + 配置文件 | 仅需配置文件 |
-| Phase检测 | 硬编码（squat_phases.py） | 通用状态机 + JSON规则 |
-| 未知动作 | 报错/失败 | 探索模式自动分析 |
-| 参数优化 | 手动调整 | 数据驱动自动迭代 |
-| 知识积累 | 代码中 | 指纹数据库 + 配置历史 |
-
----
-
-## 后续优化方向
-
-1. **在线学习**：实时根据用户反馈调整参数
-2. **迁移学习**：相似动作间共享参数（如深蹲→弓步蹲）
-3. **可视化工具**：参数迭代过程的可视化展示
-4. **A/B测试**：新旧参数并行对比
+- dataset splitter
+- dataset repository persistence
+- feedback loop
+- iteration state machine
+- triggers
+- evaluator
+- versioning
+- evaluator -> feedback -> repository integration
+- candidate promotion / rollback integration
