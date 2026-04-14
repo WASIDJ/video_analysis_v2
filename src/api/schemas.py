@@ -98,3 +98,44 @@ class QuestionRequest(BaseModel):
 class QuestionResponse(BaseModel):
     """问题生成响应."""
     questions: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class EvaluationSamplePayload(BaseModel):
+    """单个样本评估负载."""
+    sample_id: str
+    confidence: float
+    predicted_label: str
+    expected_label: str
+    source_version: str
+    split: str = "test"
+
+
+class ModelEvaluationPayload(BaseModel):
+    """模型评估负载."""
+    version_id: str
+    action_id: str
+    overall_score: float
+    metric_scores: Dict[str, float]
+    sample_results: List[EvaluationSamplePayload] = Field(default_factory=list)
+    dataset_version: str
+    config_version: str
+
+
+class IterationJobRequest(BaseModel):
+    """创建迭代任务请求."""
+    action_id: str
+    trigger_reason: str = "manual"
+    baseline: ModelEvaluationPayload
+    candidate: ModelEvaluationPayload
+
+
+class IterationJobResponse(BaseModel):
+    """迭代任务响应."""
+    job_id: str
+    action_id: str
+    status: str
+    trigger_reason: str
+    retry_count: int = 0
+    last_error: Optional[str] = None
+    baseline_version: Optional[str] = None
+    candidate_version: Optional[str] = None

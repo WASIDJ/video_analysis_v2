@@ -1,22 +1,21 @@
 """API端点定义."""
-import asyncio
 import time
 from typing import Dict, List
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 
-from ..core.models.base import create_pose_estimator
-from ..core.metrics.calculator import MetricsCalculator
-from ..core.metrics.templates import get_metrics_for_action
-from ..core.pipeline.video_processor import VideoProcessor
-from ..config import get_settings
+from config import get_settings
+from ..core.iteration import EvaluationSampleResult, ModelEvaluation, get_iteration_runtime
 from .schemas import (
+    AnalysisParams,
     TaskRequest,
     TaskResponse,
     TaskStatusResponse,
     VideoResult,
     QuestionRequest,
     QuestionResponse,
+    IterationJobRequest,
+    IterationJobResponse,
 )
 
 router = APIRouter()
@@ -111,9 +110,38 @@ async def generate_questions(request: QuestionRequest) -> QuestionResponse:
     return QuestionResponse(questions=questions)
 
 
+@router.post("/iteration/jobs", response_model=IterationJobResponse, status_code=202)
+async def create_iteration_job(
+    request: IterationJobRequest,
+) -> IterationJobResponse:
+    """创建并入队一个 iteration 任务."""
+    runtime = get_iteration_runtime()
+    service = runtime.service
+
+    baseline = _to_model_evaluation(request.baseline)
+    candidate = _to_model_evaluation(request.candidate)
+    job = await service.enqueue_job(
+        action_id=request.action_id,
+        baseline=baseline,
+        candidate=candidate,
+        trigger_reason=request.trigger_reason,
+    )
+    return _to_iteration_job_response(job)
+
+
+@router.get("/iteration/jobs/{job_id}", response_model=IterationJobResponse)
+async def get_iteration_job(job_id: str) -> IterationJobResponse:
+    """查询 iteration 任务状态."""
+    runtime = get_iteration_runtime()
+    job = runtime.service.get_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="迭代任务不存在")
+    return _to_iteration_job_response(job)
+
+
 async def process_analysis_task(
     task_id: str,
-    analysis_params: TaskRequest.analysis_params.__class__,
+    analysis_params: AnalysisParams,
 ) -> None:
     """后台处理分析任务."""
     task = task_storage.get(task_id)
@@ -127,6 +155,7 @@ async def process_analysis_task(
         task["status"] = "processing"
 
         # 创建处理器
+        from ..core.pipeline.video_processor import VideoProcessor
         processor = VideoProcessor(settings)
 
         # 处理每个视频
@@ -168,3 +197,40 @@ async def process_analysis_task(
 async def health_check() -> Dict[str, str]:
     """健康检查."""
     return {"status": "healthy", "version": "2.0.0"}
+
+
+def _to_model_evaluation(payload) -> ModelEvaluation:
+    """把 API payload 转成域模型."""
+    return ModelEvaluation(
+        version_id=payload.version_id,
+        action_id=payload.action_id,
+        overall_score=payload.overall_score,
+        metric_scores=payload.metric_scores,
+        sample_results=[
+            EvaluationSampleResult(
+                sample_id=item.sample_id,
+                confidence=item.confidence,
+                predicted_label=item.predicted_label,
+                expected_label=item.expected_label,
+                source_version=item.source_version,
+                split=item.split,
+            )
+            for item in payload.sample_results
+        ],
+        dataset_version=payload.dataset_version,
+        config_version=payload.config_version,
+    )
+
+
+def _to_iteration_job_response(job) -> IterationJobResponse:
+    """把任务对象转换为 API 响应."""
+    return IterationJobResponse(
+        job_id=job.job_id,
+        action_id=job.action_id,
+        status=job.status.value,
+        trigger_reason=job.trigger_reason or "",
+        retry_count=job.retry_count,
+        last_error=job.last_error,
+        baseline_version=job.baseline_version,
+        candidate_version=job.candidate_version,
+    )
