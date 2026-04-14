@@ -357,45 +357,6 @@ graph TD
 
 ### 方案实际开发进度
 
-## 2026-04 task1/task2 实施更新
-
-> 本节用于覆盖“测试微调阶段仍以人工反复调参为主”的旧描述。当前仓库已经实现最小自动闭环，但仍保留人工兜底。
-
-### 当前已实现路径
-
-1. 视频样本进入 `DatasetRepository`
-2. 按 `action_id + label` 分层拆分训练/验证/测试集
-3. 使用验证/测试结果产生低置信与误判反馈
-4. `FeedbackLoop` 将样本打标并入回流队列
-5. 多轮误判样本进入待标注池
-6. `IterationTriggerEngine` 决定是否触发下一轮参数迭代
-7. `UnifiedEvaluator` 比较 baseline 与 candidate
-8. `VersionStore` 负责发布或回滚
-
-### SOP 里的角色变化
-
-- **已自动化**
-  - 数据集拆分
-  - 反馈回流
-  - 待标注池流转
-  - 迭代触发
-  - baseline/candidate 对比
-  - 版本发布与回滚
-- **仍需人工兜底**
-  - 待标注池人工确认
-  - 真实训练策略与参数空间设计
-  - 线上发布决策
-
-### 当前验收标准
-
-- `tests/unit` 全绿
-- `tests/integration/test_feedback_flow.py` 全绿
-- `tests/integration/test_candidate_promotion_flow.py` 全绿
-
-### 说明
-
-下文若出现“自动化改造目标”或“规划中的模块”，优先理解为背景设计；当前实现基线请以上述闭环为准。
-
 已完成开发部署
 
 ### 方案可行性测试
@@ -455,7 +416,7 @@ By ou_c9418667841a13d51b2162054ef2f390 设计
 
 （图片部分存在问题，大体看）
 
-![](static/PDZrbotjuoCPxfxQiqIcxMPwnNh.png) **这里没看到图片**
+![](static/PDZrbotjuoCPxfxQiqIcxMPwnNh.png)
 
 ### 微观设计
 
