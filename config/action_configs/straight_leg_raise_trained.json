@@ -1,25 +1,25 @@
 {
   "schema_version": "3.0.0",
-  "action_id": "side_lift",
-  "action_name": "侧抬腿",
-  "action_name_zh": "侧抬腿",
-  "description": "通过训练自动生成的侧抬腿配置",
+  "action_id": "straight_leg_raise",
+  "action_name": "直腿抬高",
+  "action_name_zh": "直腿抬高",
+  "description": "通过训练自动生成的直腿抬高配置",
   "version": "3.0.0-trained",
-  "created_at": "2026-04-16T19:23:17.093281",
-  "updated_at": "2026-04-16T19:23:17.093290",
+  "created_at": "2026-04-19T13:07:31.883934",
+  "updated_at": "2026-04-19T13:07:31.883939",
   "phases": [
     {
       "phase_id": "start",
       "phase_name": "起始位置",
       "description": "",
       "detection_params": {
-        "key_metric": "hip_flexion",
+        "key_metric": "ankle_dorsiflexion",
         "pattern": "rising"
       },
       "entry_conditions": [
         {
           "type": "derivative",
-          "metric": "hip_flexion",
+          "metric": "ankle_dorsiflexion",
           "operator": "gt",
           "value": 0
         }
@@ -34,13 +34,13 @@
       "phase_name": "执行阶段",
       "description": "",
       "detection_params": {
-        "key_metric": "hip_flexion",
+        "key_metric": "ankle_dorsiflexion",
         "pattern": "rising_to_peak"
       },
       "entry_conditions": [
         {
           "type": "derivative",
-          "metric": "hip_flexion",
+          "metric": "ankle_dorsiflexion",
           "operator": "gt",
           "value": 5.0
         }
@@ -48,7 +48,7 @@
       "exit_conditions": [
         {
           "type": "derivative",
-          "metric": "hip_flexion",
+          "metric": "ankle_dorsiflexion",
           "operator": "lt",
           "value": 0
         }
@@ -62,24 +62,24 @@
       "phase_name": "保持阶段",
       "description": "",
       "detection_params": {
-        "key_metric": "hip_flexion",
+        "key_metric": "ankle_dorsiflexion",
         "pattern": "at_peak",
-        "threshold": 140.49164306206487
+        "threshold": 123.19912143032964
       },
       "entry_conditions": [
         {
           "type": "threshold",
-          "metric": "hip_flexion",
+          "metric": "ankle_dorsiflexion",
           "operator": "gte",
-          "value": 140.49164306206487
+          "value": 123.19912143032964
         }
       ],
       "exit_conditions": [
         {
           "type": "threshold",
-          "metric": "hip_flexion",
+          "metric": "ankle_dorsiflexion",
           "operator": "lt",
-          "value": 133.46706090896163
+          "value": 117.03916535881315
         }
       ],
       "stability_checks": [],
@@ -91,13 +91,13 @@
       "phase_name": "返回阶段",
       "description": "",
       "detection_params": {
-        "key_metric": "hip_flexion",
+        "key_metric": "ankle_dorsiflexion",
         "pattern": "falling"
       },
       "entry_conditions": [
         {
           "type": "derivative",
-          "metric": "hip_flexion",
+          "metric": "ankle_dorsiflexion",
           "operator": "lt",
           "value": 0
         }
@@ -112,16 +112,16 @@
       "phase_name": "结束位置",
       "description": "",
       "detection_params": {
-        "key_metric": "hip_flexion",
+        "key_metric": "ankle_dorsiflexion",
         "pattern": "at_valley",
-        "threshold": 115.66502328869817
+        "threshold": 139.11977972962566
       },
       "entry_conditions": [
         {
           "type": "threshold",
-          "metric": "hip_flexion",
+          "metric": "ankle_dorsiflexion",
           "operator": "lte",
-          "value": 115.66502328869817
+          "value": 139.11977972962566
         }
       ],
       "exit_conditions": [],
@@ -132,69 +132,92 @@
   ],
   "metrics": [
     {
-      "metric_id": "hip_flexion",
+      "metric_id": "ankle_dorsiflexion",
       "enabled": true,
       "evaluation_phase": "hold",
       "thresholds": {
         "normal_range": [
-          109.85,
-          156.81
+          119.95,
+          139.39
         ],
         "excellent_range": [
-          121.59,
-          145.07
+          124.81,
+          134.53
         ],
         "pass_range": [
-          41.49,
-          179.52
+          67.5,
+          178.39
         ],
-        "target_value": 133.33
+        "target_value": 129.67
       },
       "error_conditions": [],
       "custom_params": {},
       "weight": 1.0
     },
     {
-      "metric_id": "knee_flexion",
+      "metric_id": "knee_flexion_compensation",
       "enabled": true,
       "evaluation_phase": "hold",
       "thresholds": {
         "normal_range": [
-          133.1,
-          174.89
+          157.97,
+          174.75
         ],
         "excellent_range": [
-          143.55,
-          164.44
+          162.16,
+          170.56
         ],
         "pass_range": [
-          1.63,
-          179.68
+          36.62,
+          179.67
         ],
-        "target_value": 154.0
+        "target_value": 166.36
       },
       "error_conditions": [],
       "custom_params": {},
       "weight": 1.0
     },
     {
-      "metric_id": "ankle_dorsiflexion_lateral",
+      "metric_id": "hip_abduction",
       "enabled": true,
       "evaluation_phase": "hold",
       "thresholds": {
         "normal_range": [
-          151.37,
-          174.84
+          64.57,
+          90.17
         ],
         "excellent_range": [
-          157.23,
-          168.97
+          70.97,
+          83.77
         ],
         "pass_range": [
-          3.47,
-          179.4
+          27.85,
+          151.69
         ],
-        "target_value": 163.1
+        "target_value": 77.37
+      },
+      "error_conditions": [],
+      "custom_params": {},
+      "weight": 1.0
+    },
+    {
+      "metric_id": "knee_symmetry",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "normal_range": [
+          0.12,
+          0.22
+        ],
+        "excellent_range": [
+          0.14,
+          0.19
+        ],
+        "pass_range": [
+          0.06,
+          0.23
+        ],
+        "target_value": 0.17
       },
       "error_conditions": [],
       "custom_params": {},
@@ -227,43 +250,43 @@
   },
   "count_layer": {
     "phase_mode": "p1p2",
-    "control_metric": "hip_flexion",
+    "control_metric": "ankle_dorsiflexion",
     "polarity": "valley_to_peak_to_valley",
     "thresholds": {
-      "enter_p1": 116.862,
-      "exit_p1": 145.161,
-      "enter_p2": 138.086,
-      "exit_p2": 113.325
+      "enter_p1": 121.668,
+      "exit_p1": 145.358,
+      "enter_p2": 140.381,
+      "exit_p2": 119.794
     },
     "timing": {
       "min_phase_duration_sec": 0.2,
       "max_phase_duration_sec": 5.0,
-      "min_cycle_distance_frames": 45
+      "min_cycle_distance_frames": 28
     },
     "aggregation": {
       "method": "median_iqr",
-      "train_video_count": 5,
+      "train_video_count": 8,
       "param_ci": {
         "enter_p1": [
-          97.522,
-          136.203
+          105.157,
+          135.06
         ],
         "exit_p1": [
-          132.635,
-          157.686
+          125.059,
+          148.587
         ],
         "enter_p2": [
-          123.857,
-          152.315
+          120.492,
+          144.792
         ],
         "exit_p2": [
-          93.132,
-          133.518
+          100.348,
+          133.354
         ]
       }
     },
     "source": {
-      "action_id": "side_lift",
+      "action_id": "straight_leg_raise",
       "dataset_split": "train"
     }
   },
@@ -275,13 +298,13 @@
         "phase_name": "起始位置",
         "description": "",
         "detection_params": {
-          "key_metric": "hip_flexion",
+          "key_metric": "ankle_dorsiflexion",
           "pattern": "rising"
         },
         "entry_conditions": [
           {
             "type": "derivative",
-            "metric": "hip_flexion",
+            "metric": "ankle_dorsiflexion",
             "operator": "gt",
             "value": 0
           }
@@ -296,13 +319,13 @@
         "phase_name": "执行阶段",
         "description": "",
         "detection_params": {
-          "key_metric": "hip_flexion",
+          "key_metric": "ankle_dorsiflexion",
           "pattern": "rising_to_peak"
         },
         "entry_conditions": [
           {
             "type": "derivative",
-            "metric": "hip_flexion",
+            "metric": "ankle_dorsiflexion",
             "operator": "gt",
             "value": 5.0
           }
@@ -310,7 +333,7 @@
         "exit_conditions": [
           {
             "type": "derivative",
-            "metric": "hip_flexion",
+            "metric": "ankle_dorsiflexion",
             "operator": "lt",
             "value": 0
           }
@@ -324,24 +347,24 @@
         "phase_name": "保持阶段",
         "description": "",
         "detection_params": {
-          "key_metric": "hip_flexion",
+          "key_metric": "ankle_dorsiflexion",
           "pattern": "at_peak",
-          "threshold": 140.49164306206487
+          "threshold": 123.19912143032964
         },
         "entry_conditions": [
           {
             "type": "threshold",
-            "metric": "hip_flexion",
+            "metric": "ankle_dorsiflexion",
             "operator": "gte",
-            "value": 140.49164306206487
+            "value": 123.19912143032964
           }
         ],
         "exit_conditions": [
           {
             "type": "threshold",
-            "metric": "hip_flexion",
+            "metric": "ankle_dorsiflexion",
             "operator": "lt",
-            "value": 133.46706090896163
+            "value": 117.03916535881315
           }
         ],
         "stability_checks": [],
@@ -353,13 +376,13 @@
         "phase_name": "返回阶段",
         "description": "",
         "detection_params": {
-          "key_metric": "hip_flexion",
+          "key_metric": "ankle_dorsiflexion",
           "pattern": "falling"
         },
         "entry_conditions": [
           {
             "type": "derivative",
-            "metric": "hip_flexion",
+            "metric": "ankle_dorsiflexion",
             "operator": "lt",
             "value": 0
           }
@@ -374,16 +397,16 @@
         "phase_name": "结束位置",
         "description": "",
         "detection_params": {
-          "key_metric": "hip_flexion",
+          "key_metric": "ankle_dorsiflexion",
           "pattern": "at_valley",
-          "threshold": 115.66502328869817
+          "threshold": 139.11977972962566
         },
         "entry_conditions": [
           {
             "type": "threshold",
-            "metric": "hip_flexion",
+            "metric": "ankle_dorsiflexion",
             "operator": "lte",
-            "value": 115.66502328869817
+            "value": 139.11977972962566
           }
         ],
         "exit_conditions": [],
@@ -404,75 +427,89 @@
     "metric_selection_info": {
       "total_candidates": 15,
       "scored_metrics": 15,
-      "passed_threshold": 6,
-      "final_core": 3,
+      "passed_threshold": 7,
+      "final_core": 4,
       "final_aux": 0,
       "scoring_details": [
         {
-          "metric_id": "hip_flexion",
-          "stability": 0.423,
-          "discrimination": 1.0,
-          "overall": 0.627,
-          "reason": ""
-        },
-        {
-          "metric_id": "trunk_lean",
-          "stability": 0.375,
-          "discrimination": 1.0,
-          "overall": 0.612,
-          "reason": ""
-        },
-        {
-          "metric_id": "knee_flexion",
-          "stability": 0.361,
-          "discrimination": 1.0,
-          "overall": 0.608,
-          "reason": ""
-        },
-        {
           "metric_id": "ankle_dorsiflexion",
-          "stability": 0.354,
+          "stability": 0.421,
           "discrimination": 1.0,
-          "overall": 0.606,
+          "overall": 0.626,
           "reason": ""
         },
         {
           "metric_id": "ankle_dorsiflexion_lateral",
-          "stability": 0.342,
+          "stability": 0.421,
           "discrimination": 1.0,
-          "overall": 0.603,
+          "overall": 0.626,
+          "reason": ""
+        },
+        {
+          "metric_id": "knee_flexion",
+          "stability": 0.405,
+          "discrimination": 1.0,
+          "overall": 0.621,
           "reason": ""
         },
         {
           "metric_id": "knee_flexion_compensation",
-          "stability": 0.34,
+          "stability": 0.403,
           "discrimination": 1.0,
-          "overall": 0.602,
+          "overall": 0.621,
+          "reason": ""
+        },
+        {
+          "metric_id": "hip_flexion",
+          "stability": 0.382,
+          "discrimination": 1.0,
+          "overall": 0.615,
           "reason": ""
         },
         {
           "metric_id": "hip_abduction",
-          "stability": 0.0,
+          "stability": 0.348,
           "discrimination": 1.0,
-          "overall": 0.5,
-          "reason": "稳定性不足 (0.00 < 0.3)"
+          "overall": 0.604,
+          "reason": ""
+        },
+        {
+          "metric_id": "trunk_lean",
+          "stability": 0.203,
+          "discrimination": 1.0,
+          "overall": 0.561,
+          "reason": "稳定性不足 (0.20 < 0.3)"
         },
         {
           "metric_id": "leg_elevation_height",
-          "stability": 0.0,
+          "stability": 0.063,
           "discrimination": 1.0,
-          "overall": 0.5,
-          "reason": "稳定性不足 (0.00 < 0.3)"
+          "overall": 0.519,
+          "reason": "稳定性不足 (0.06 < 0.3)"
         },
         {
-          "metric_id": "pelvic_obliquity",
+          "metric_id": "knee_symmetry",
+          "stability": 0.393,
+          "discrimination": 1.0,
+          "overall": 0.518,
+          "reason": ""
+        },
+        {
+          "metric_id": "hip_range_of_motion",
+          "stability": 0.281,
+          "discrimination": 1.0,
+          "overall": 0.484,
+          "reason": "稳定性不足 (0.28 < 0.3)"
+        },
+        {
+          "metric_id": "pelvic_tilt",
           "stability": 0.0,
           "discrimination": 1.0,
           "overall": 0.44,
           "reason": "稳定性不足 (0.00 < 0.3)"
         },
         {
-          "metric_id": "knee_valgus",
+          "metric_id": "pelvic_obliquity",
           "stability": 0.0,
           "discrimination": 1.0,
           "overall": 0.44,
@@ -486,28 +523,14 @@
           "reason": "稳定性不足 (0.00 < 0.3)"
         },
         {
-          "metric_id": "pelvic_tilt",
+          "metric_id": "knee_valgus",
           "stability": 0.0,
           "discrimination": 1.0,
           "overall": 0.44,
           "reason": "稳定性不足 (0.00 < 0.3)"
         },
         {
-          "metric_id": "hip_range_of_motion",
-          "stability": 0.054,
-          "discrimination": 1.0,
-          "overall": 0.416,
-          "reason": "稳定性不足 (0.05 < 0.3)"
-        },
-        {
           "metric_id": "hip_external_rotation",
-          "stability": 0.0,
-          "discrimination": 1.0,
-          "overall": 0.4,
-          "reason": "稳定性不足 (0.00 < 0.3)"
-        },
-        {
-          "metric_id": "knee_symmetry",
           "stability": 0.0,
           "discrimination": 1.0,
           "overall": 0.4,
@@ -517,16 +540,14 @@
     },
     "training_info": {
       "schema_version": "v2.0",
-      "action_id": "side_lift",
+      "action_id": "straight_leg_raise",
       "dataset_version": "v1.0",
-      "candidate_version": "20260416_v1.0",
-      "created_at": "2026-04-16T19:23:17.093353",
-      "standard_samples": 6,
-      "error_types": [
-        "error:leg_low"
-      ],
-      "total_error_conditions": 1,
-      "confidence": 0.95
+      "candidate_version": "20260419_v1.0",
+      "created_at": "2026-04-19T13:07:31.883990",
+      "standard_samples": 10,
+      "error_types": [],
+      "total_error_conditions": 0,
+      "confidence": 0.9101152968406157
     }
   }
 }

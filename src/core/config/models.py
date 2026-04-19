@@ -17,6 +17,92 @@ class ComparisonOperator(Enum):
     BETWEEN = "between"  # 在范围内
 
 
+class CycleDefinitionSource(str, Enum):
+    """周期定义来源（用于追溯和审计）."""
+    EXPLICIT = "explicit"           # 用户显式配置（最高优先级）
+    DATA_INFERRED = "data_inferred" # 基于训练数据推断
+    TEMPLATE_FALLBACK = "template"  # 模板回退（最低优先级）
+    MISSING = "missing"             # 未配置（计数功能不可用）
+
+
+@dataclass
+class CycleDefinition:
+    """动作周期定义."""
+    # 完整周期所需的阶段序列（有序）
+    phase_sequence: List[str]
+    # 起始阶段（可从中间开始，默认第一个）
+    start_phase: Optional[str] = None
+    # 结束阶段（回到起始或特定阶段，默认第一个形成闭环）
+    end_phase: Optional[str] = None
+    # 关键阶段（必须存在才能算一个有效周期）
+    required_phases: List[str] = field(default_factory=list)
+    # 循环模式
+    cycle_mode: str = "closed"  # closed: 闭环, open: 开环
+    # 时长限制
+    min_cycle_duration: float = 1.0   # 秒，过滤抖动
+    max_cycle_duration: float = 30.0  # 秒，过滤异常
+
+    def __post_init__(self):
+        # 默认值处理
+        if self.start_phase is None and self.phase_sequence:
+            self.start_phase = self.phase_sequence[0]
+        if self.end_phase is None and self.phase_sequence:
+            self.end_phase = self.phase_sequence[0]
+
+    def to_dict(self) -> Dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> "CycleDefinition":
+        return cls(
+            phase_sequence=data.get("phase_sequence", []),
+            start_phase=data.get("start_phase"),
+            end_phase=data.get("end_phase"),
+            required_phases=data.get("required_phases", []),
+            cycle_mode=data.get("cycle_mode", "closed"),
+            min_cycle_duration=data.get("min_cycle_duration", 1.0),
+            max_cycle_duration=data.get("max_cycle_duration", 30.0),
+        )
+
+
+@dataclass
+class CycleDefinitionWithMeta:
+    """带元信息的周期定义."""
+    definition: Optional[CycleDefinition]
+    source: CycleDefinitionSource
+    confidence: float              # 定义可信度（0-1）
+    generated_at: str              # 生成时间
+    generated_by: str              # 生成工具/算法
+    validation_warnings: List[str] # 校验警告
+
+    def to_dict(self) -> Dict:
+        return {
+            "definition": self.definition.to_dict() if self.definition else None,
+            "source": self.source.value,
+            "confidence": self.confidence,
+            "generated_at": self.generated_at,
+            "generated_by": self.generated_by,
+            "validation_warnings": self.validation_warnings,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict) -> "CycleDefinitionWithMeta":
+        def_data = data.get("definition")
+        return cls(
+            definition=CycleDefinition.from_dict(def_data) if def_data else None,
+            source=CycleDefinitionSource(data.get("source", "missing")),
+            confidence=data.get("confidence", 0.0),
+            generated_at=data.get("generated_at", ""),
+            generated_by=data.get("generated_by", ""),
+            validation_warnings=data.get("validation_warnings", []),
+        )
+    """周期定义来源（用于追溯和审计）."""
+    EXPLICIT = "explicit"           # 用户显式配置（最高优先级）
+    DATA_INFERRED = "data_inferred" # 基于训练数据推断
+    TEMPLATE_FALLBACK = "template"  # 模板回退（最低优先级）
+    MISSING = "missing"             # 未配置（计数功能不可用）
+
+
 @dataclass
 class PhaseDefinition:
     """动作阶段定义."""
@@ -25,13 +111,35 @@ class PhaseDefinition:
     description: str = ""
     # 阶段识别参数
     detection_params: Dict[str, Any] = field(default_factory=dict)
+    # V2: 进入条件
+    entry_conditions: List[Dict[str, Any]] = field(default_factory=list)
+    # V2: 退出条件
+    exit_conditions: List[Dict[str, Any]] = field(default_factory=list)
+    # V2: 稳定性检查
+    stability_checks: List[Dict[str, Any]] = field(default_factory=list)
+    # V2: 最大持续时间（秒）
+    max_duration: Optional[float] = None
+    # V2: 最小持续时间（秒）
+    min_duration: Optional[float] = None
 
     def to_dict(self) -> Dict:
         return asdict(self)
 
     @classmethod
     def from_dict(cls, data: Dict) -> "PhaseDefinition":
-        return cls(**data)
+        # 处理向后兼容
+        kwargs = {
+            "phase_id": data["phase_id"],
+            "phase_name": data["phase_name"],
+            "description": data.get("description", ""),
+            "detection_params": data.get("detection_params", {}),
+            "entry_conditions": data.get("entry_conditions", []),
+            "exit_conditions": data.get("exit_conditions", []),
+            "stability_checks": data.get("stability_checks", []),
+            "max_duration": data.get("max_duration"),
+            "min_duration": data.get("min_duration"),
+        }
+        return cls(**kwargs)
 
 
 @dataclass
@@ -151,11 +259,14 @@ class MetricConfig:
 
 @dataclass
 class ActionConfig:
-    """动作配置."""
+    """动作配置 - V2版本（向后兼容V1）."""
+    # Schema版本标识
+    schema_version: str = "2.0.0"
+
     # 基础信息
-    action_id: str
-    action_name: str
-    action_name_zh: str
+    action_id: str = ""
+    action_name: str = ""
+    action_name_zh: str = ""
     description: str = ""
     version: str = "1.0.0"
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
@@ -170,11 +281,20 @@ class ActionConfig:
     # 全局参数
     global_params: Dict[str, Any] = field(default_factory=dict)
 
+    # V2: 周期定义（可选，用于动作计数）
+    cycle_definition: Optional[CycleDefinition] = None
+
+    # V3: 双层相位计数结构
+    count_layer: Dict[str, Any] = field(default_factory=dict)
+    semantic_layer: Dict[str, Any] = field(default_factory=dict)
+    compatibility: Dict[str, Any] = field(default_factory=dict)
+
     # 元数据
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict:
         return {
+            "schema_version": self.schema_version,
             "action_id": self.action_id,
             "action_name": self.action_name,
             "action_name_zh": self.action_name_zh,
@@ -185,15 +305,28 @@ class ActionConfig:
             "phases": [p.to_dict() for p in self.phases],
             "metrics": [m.to_dict() for m in self.metrics],
             "global_params": self.global_params,
+            "cycle_definition": self.cycle_definition.to_dict() if self.cycle_definition else None,
+            "count_layer": self.count_layer,
+            "semantic_layer": self.semantic_layer,
+            "compatibility": self.compatibility,
             "metadata": self.metadata,
         }
 
     @classmethod
     def from_dict(cls, data: Dict) -> "ActionConfig":
+        # 处理向后兼容：V1 配置可能没有 schema_version
+        schema_version = data.get("schema_version", "1.0.0")
+
+        # 处理 cycle_definition（V1可能没有）
+        cycle_def = None
+        if "cycle_definition" in data and data["cycle_definition"]:
+            cycle_def = CycleDefinition.from_dict(data["cycle_definition"])
+
         return cls(
-            action_id=data["action_id"],
-            action_name=data["action_name"],
-            action_name_zh=data["action_name_zh"],
+            schema_version=schema_version,
+            action_id=data.get("action_id", ""),
+            action_name=data.get("action_name", ""),
+            action_name_zh=data.get("action_name_zh", ""),
             description=data.get("description", ""),
             version=data.get("version", "1.0.0"),
             created_at=data.get("created_at", datetime.now().isoformat()),
@@ -201,6 +334,10 @@ class ActionConfig:
             phases=[PhaseDefinition.from_dict(p) for p in data.get("phases", [])],
             metrics=[MetricConfig.from_dict(m) for m in data.get("metrics", [])],
             global_params=data.get("global_params", {}),
+            cycle_definition=cycle_def,
+            count_layer=data.get("count_layer", {}),
+            semantic_layer=data.get("semantic_layer", {}),
+            compatibility=data.get("compatibility", {}),
             metadata=data.get("metadata", {}),
         )
 

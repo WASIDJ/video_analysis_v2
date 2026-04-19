@@ -37,6 +37,7 @@ from typing import List, Dict
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.training.batch_processor import BatchProcessor, BatchConfig, create_batch_config_from_json
+from src.core.training.post_train_evaluator import PostTrainEvaluator, PostTrainArtifacts
 from src.core.training.pipeline import VideoTrainingConfig
 
 
@@ -111,6 +112,18 @@ def create_parser() -> argparse.ArgumentParser:
         help="最少标准样本数（默认：3）"
     )
 
+    parser.add_argument(
+        "--data-dir",
+        default="data",
+        help="数据目录（用于保存拆分与评估产物）"
+    )
+
+    parser.add_argument(
+        "--skip-auto-eval",
+        action="store_true",
+        help="跳过训练后自动拆分与测试评估"
+    )
+
     return parser
 
 
@@ -165,7 +178,7 @@ def build_config_from_args(args) -> BatchConfig:
     )
 
 
-def print_result(result: Dict) -> None:
+def print_result(result: Dict, artifacts: PostTrainArtifacts | None = None) -> None:
     """打印处理结果."""
     print("\n" + "=" * 50)
     print("训练结果")
@@ -180,6 +193,11 @@ def print_result(result: Dict) -> None:
 
         if result['quality_report'].get('error_types_covered', 0) > 0:
             print(f"✓ 错误类型覆盖: {result['quality_report']['error_types_covered']}")
+        if artifacts:
+            print(f"✓ 数据集版本: {artifacts.dataset_version}")
+            print(f"✓ 候选版本: {artifacts.candidate_version}")
+            print(f"✓ 数据拆分清单: {artifacts.split_manifest_path}")
+            print(f"✓ 测试评估结果: {artifacts.evaluation_path}")
     else:
         print(f"✗ 训练失败")
 
@@ -238,8 +256,14 @@ def main():
     processor = BatchProcessor(config)
     result = processor.process()
 
+    artifacts: PostTrainArtifacts | None = None
+    if result.get("success") and not args.skip_auto_eval:
+        print("\n开始自动拆分与测试评估...")
+        evaluator = PostTrainEvaluator(data_dir=args.data_dir)
+        artifacts = evaluator.evaluate_from_batch_result(config=config, batch_result=result)
+
     # 打印结果
-    print_result(result)
+    print_result(result, artifacts=artifacts)
 
     # 返回码
     sys.exit(0 if result["success"] else 1)

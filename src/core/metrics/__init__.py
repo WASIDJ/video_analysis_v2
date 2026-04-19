@@ -5,10 +5,26 @@ from .definitions import (
     MetricDefinition,
 )
 from .calculator import MetricsCalculator
+from .evaluator import (
+    ThresholdEvaluator,
+    ThresholdEvaluation,
+    MetricThreshold,
+)
+from .selector import (
+    MetricSelector,
+    MetricScore,
+    MetricSelectionResult,
+)
 
 __all__ = [
     "MetricCategory",
     "MovementPlane",
     "MetricDefinition",
     "MetricsCalculator",
+    "ThresholdEvaluator",
+    "ThresholdEvaluation",
+    "MetricThreshold",
+    "MetricSelector",
+    "MetricScore",
+    "MetricSelectionResult",
 ]

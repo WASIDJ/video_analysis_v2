@@ -40,9 +40,11 @@ class FeatureValidator:
     PHYSICAL_LIMITS = {
         "knee_flexion": {"min": 0, "max": 180},
         "hip_flexion": {"min": 0, "max": 140},
-        "ankle_dorsiflexion": {"min": -30, "max": 50},
+        # 2D投影下踝角容易映射到接近180度，训练阶段使用宽容范围避免误杀样本
+        "ankle_dorsiflexion": {"min": -30, "max": 180},
         "trunk_lean": {"min": 0, "max": 90},
-        "knee_valgus": {"min": -30, "max": 30},
+        # 2D场景下膝外翻符号和幅值受视角影响较大，训练阶段仅做弱约束
+        "knee_valgus": {"min": -180, "max": 180},
         "shoulder_flexion": {"min": 0, "max": 180},
         "elbow_flexion": {"min": 0, "max": 160},
     }
@@ -154,15 +156,25 @@ class FeatureValidator:
         limits = self.limits[metric.metric_id]
         min_limit = limits["min"]
         max_limit = limits["max"]
+        hard_margin = 60  # 极端越界仍判失败
+        soft_margin = 10  # 轻度越界仅告警，避免误杀样本
 
         # 检查是否超出物理极限
-        if metric.min < min_limit - 10:  # 允许10度误差
+        if metric.min < min_limit - hard_margin:
             report.add_issue(
+                f"{metric.metric_name}: 最小值 {metric.min:.1f}° 严重超出物理极限 [{min_limit}, {max_limit}]"
+            )
+        elif metric.min < min_limit - soft_margin:
+            report.add_warning(
                 f"{metric.metric_name}: 最小值 {metric.min:.1f}° 超出物理极限 [{min_limit}, {max_limit}]"
             )
 
-        if metric.max > max_limit + 10:
+        if metric.max > max_limit + hard_margin:
             report.add_issue(
+                f"{metric.metric_name}: 最大值 {metric.max:.1f}° 严重超出物理极限 [{min_limit}, {max_limit}]"
+            )
+        elif metric.max > max_limit + soft_margin:
+            report.add_warning(
                 f"{metric.metric_name}: 最大值 {metric.max:.1f}° 超出物理极限 [{min_limit}, {max_limit}]"
             )
 

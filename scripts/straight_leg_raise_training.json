@@ -1,0 +1,76 @@
+{
+  "action_id": "straight_leg_raise",
+  "action_name_zh": "直腿抬高",
+  "videos": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展1.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展5.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展3.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展4.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展14.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展6.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展7.mp4",
+      "tags": ["error:excessive_hip_abduction"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展8.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展9.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展16.mp4",
+      "tags": ["error:excessive_hip_abduction"],
+      "ground_truth_reps": 10
+    },
+        {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展17.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+        {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展18.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 10
+    },
+        {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展19.mp4",
+      "tags": ["error:bent_leg"],
+      "ground_truth_reps": 10
+    },
+        {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/originalVideos/直腿抬高外展20.mp4",
+      "tags": ["error:bent_leg"],
+      "ground_truth_reps": 10
+    }
+  ]
+}

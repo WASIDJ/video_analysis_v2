@@ -132,6 +132,13 @@ class BatchProcessor:
             print(f"  处理视频 {i}/{len(self.config.videos)}: {video_config.video_path}")
 
             try:
+                # 注入任务级动作标识，保证指纹 action_id 一致。
+                video_config.metadata = {
+                    **(video_config.metadata or {}),
+                    "action_id": self.config.action_id,
+                    "action_name": self.config.action_name_zh or self.config.action_id,
+                }
+
                 # 执行训练流程
                 result = self.training_pipeline.process_video(video_config)
 
@@ -297,6 +304,7 @@ class BatchProcessor:
             "warnings": warnings,
             "standard_samples": std_count,
             "error_types_covered": len(config_result.get("error_conditions", {})),
+            "covered_error_types": sorted(config_result.get("error_conditions", {}).keys()),
             "confidence": config_result.get("confidence", 0.0),
         }
 

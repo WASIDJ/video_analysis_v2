@@ -6,10 +6,13 @@
 from .fingerprint import ActionFingerprint, FingerprintAnalyzer
 from .exploration import ExplorationAnalyzer
 from .template_generator import TemplateGenerator
+from .analyzer import ActionAnalyzer, AnalysisResult
 
 __all__ = [
     "ActionFingerprint",
     "FingerprintAnalyzer",
     "ExplorationAnalyzer",
     "TemplateGenerator",
+    "ActionAnalyzer",
+    "AnalysisResult",
 ]
