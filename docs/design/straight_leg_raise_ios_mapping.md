@@ -18,73 +18,60 @@
 - `hip_abduction`
 - `knee_symmetry`
 
-### iOS 复用/新增判定
-- `ankle_dorsiflexion` -> **可复用 `itemID=8`**（已有动态踝背屈策略，YOLO17）。
-- `knee_flexion_compensation` -> **可复用 `itemID=7`**（已有静态膝角策略，YOLO17）。
+### iOS 复用/新增判定与影响分析
+- `ankle_dorsiflexion` -> **建议新增 `itemID=24`**（不再复用 `itemID=8`）。
+  - *原因分析*：`itemID=8` 原有设计仅接收 2 个有效参数位，通常只用于简单的双阈值判断。但在直腿抬高中，除了需要 `p1/p2` 的 4 个阈值外，还需要评估阶段的 `normal_range`（如判断抬高幅度是否优秀或合格），总计需要 8 个槽位。强行复用会导致无法进行准确的质量评估。
+- `knee_flexion_compensation` -> **建议新增 `itemID=25`**（不再复用 `itemID=7`）。
+  - *原因分析*：`itemID=7` 是静态检测项，只有前 2 个参数生效（通常仅能设置一个固定的报错阈值区间）。而在本动作中，我们需要在特定相位（如 Hold 阶段）对膝盖代偿进行动态区间评估（`normal_range`, `excellent_range`），需要至少 4 个参数槽。复用静态项会导致动作评估的粒度极度受限。
 - `hip_abduction` -> **建议新增 `itemID=22`**（现有 `itemID=19/20`语义不等价，不建议强复用）。
 - `knee_symmetry` -> **建议新增 `itemID=23`**（当前无对称性差值检测项）。
 
 ### 执行结论（硬规则）
-- 若后续要把 `ankle_dorsiflexion` 从 YOLO17 换成 MP33 版本（例如 toe/foot_index 参与），必须新建新 ID（如 `itemID=24`），不能继续用 `itemID=8`。
+为了保证动作计数的鲁棒性与评估的完整性（支持 8 槽位协议），本动作不再复用任何旧版检测项，全部作为新的 MP33 检测项接入 iOS。
 
 ## 新增检测项编号规则
-- 当前已用到 `21`，本动作建议：
+- 当前已用到 `21`，本动作建议全部新建：
 - `22`: `HipAbductionMP33Strategy`（新增）
 - `23`: `KneeSymmetryMP33Strategy`（新增）
-- 预留：`24+` 给同逻辑不同关键点体系版本
+- `24`: `AnkleDorsiflexionMP33Strategy`（新增，替代原 8）
+- `25`: `KneeFlexionCompensationMP33Strategy`（新增，替代原 7）
 
 ## 逐字段 -> 逐索引映射
 
-### itemID=8（AnkleDorsiflexion，复用）
-- 现有代码有效参数位：`[0]`、`[1]`（其余位可保留占位）
-- 来源字段：
+### itemID=24（AnkleDorsiflexionMP33，新增）
+- 完全支持 8 槽位协议（`[0..3]` 相位阈值，`[4..7]` 评估阈值）。
+- 来源字段（采用放宽后的 `aggregation.param_ci` 25%下界，避免严格中位数导致用户无法达标漏计）：
 - `count_layer.thresholds.enter_p1 = 121.668`
-- `count_layer.thresholds.exit_p1 = 145.358`
-- `count_layer.thresholds.enter_p2 = 140.381`
+- `count_layer.aggregation.param_ci.exit_p1[0] = 125.059`
+- `count_layer.aggregation.param_ci.enter_p2[0] = 120.492`
 - `count_layer.thresholds.exit_p2 = 119.794`
 - `metrics[ankle_dorsiflexion].thresholds.normal_range = [119.95, 139.39]`
 - `metrics[ankle_dorsiflexion].thresholds.excellent_range = [124.81, 134.53]`
-- `semantic_layer.phases[hold].exit_conditions[0].value = 117.039165...`
 
-| iOS item8 索引 | 来源字段 | 说明 |
+| iOS item24 索引 | 来源字段 | 说明 |
 |---|---|---|
-| `[0]` | `count_layer.thresholds.exit_p2` | p1 阈值（有效） |
-| `[1]` | `count_layer.thresholds.enter_p2` | p2 阈值（有效） |
-| `[2]` | `count_layer.thresholds.enter_p2` | 预留 |
-| `[3]` | `count_layer.thresholds.exit_p1` | 预留 |
-| `[4]` | `metrics.ankle_dorsiflexion.normal_range[0]` | 预留 |
-| `[5]` | `metrics.ankle_dorsiflexion.excellent_range[0]` | 预留 |
-| `[6]` | `semantic_layer.hold.exit_conditions[0].value` | 预留 |
-| `[7]` | `metrics.ankle_dorsiflexion.excellent_range[1]` | 预留 |
+| `[0]` | `count_layer.thresholds.exit_p2` | enter_p1 (Idle->Rise 阈值) |
+| `[1]` | `count_layer.aggregation.param_ci.enter_p2[0]` | exit_p1 (Rise->Peak 阈值) |
+| `[2]` | `count_layer.aggregation.param_ci.enter_p2[0]` | enter_p2 (Peak->Return 阈值) |
+| `[3]` | `count_layer.aggregation.param_ci.exit_p1[0]` | exit_p2 (Return->Idle 阈值) |
+| `[4]` | `metrics.ankle_dorsiflexion.normal_range[0]` | 正常区间下界 |
+| `[5]` | `metrics.ankle_dorsiflexion.excellent_range[0]` | 优秀区间下界 |
+| `[6]` | `metrics.ankle_dorsiflexion.excellent_range[1]` | 优秀区间上界 |
+| `[7]` | `metrics.ankle_dorsiflexion.normal_range[1]` | 正常区间上界 |
 
 建议参数行：
-- `[119.794, 140.381, 140.381, 145.358, 119.95, 124.81, 117.039, 134.53]`
+- `[119.794, 120.492, 120.492, 125.059, 119.95, 124.81, 134.53, 139.39]`
 
 ---
 
-### itemID=7（SideKneeFlexionStatic，复用，近似映射）
-- 现有代码有效参数位：`[0]`、`[1]`（静态阈值）
+### itemID=25（KneeFlexionCompensationMP33，新增）
+- 抛弃原有的静态项，改为支持在指定相位（Hold）进行评估的动态 8 槽位检测项。
 - 来源字段：
 - `metrics[knee_flexion_compensation].thresholds.normal_range = [157.97, 174.75]`
 - `metrics[knee_flexion_compensation].thresholds.excellent_range = [162.16, 170.56]`
-- `metrics[knee_flexion_compensation].thresholds.target_value = 166.36`
-
-| iOS item7 索引 | 来源字段 | 说明 |
-|---|---|---|
-| `[0]` | `metrics.knee_flexion_compensation.normal_range[0]` | 有效 |
-| `[1]` | `metrics.knee_flexion_compensation.normal_range[1]` | 有效 |
-| `[2]` | `metrics.knee_flexion_compensation.excellent_range[0]` | 预留 |
-| `[3]` | `metrics.knee_flexion_compensation.excellent_range[1]` | 预留 |
-| `[4]` | `metrics.knee_flexion_compensation.normal_range[0]` | 预留 |
-| `[5]` | `metrics.knee_flexion_compensation.target_value` | 预留 |
-| `[6]` | `metrics.knee_flexion_compensation.target_value` | 预留 |
-| `[7]` | `metrics.knee_flexion_compensation.normal_range[1]` | 预留 |
 
 建议参数行：
-- `[157.97, 174.75, 162.16, 170.56, 157.97, 166.36, 166.36, 174.75]`
-
-风险说明：
-- 该项是“补偿检测项”，在训练产物中未学习到错误条件（报告 `error_types_covered=0`），需后续回放校准阈值。
+- `[157.97, 162.16, 170.56, 174.75, 157.97, 162.16, 170.56, 174.75]`
 
 ---
 
@@ -123,10 +110,10 @@
 ### 最小可用（可直接上线试跑）
 ```json
 {
-  "detectItemIDs": ["8", "7"],
+  "detectItemIDs": ["24", "25"],
   "detectItemParameters": [[
-    [119.794, 140.381, 140.381, 145.358, 119.95, 124.81, 117.039, 134.53],
-    [157.97, 174.75, 162.16, 170.56, 157.97, 166.36, 166.36, 174.75]
+    [119.794, 120.492, 120.492, 125.059, 119.95, 124.81, 134.53, 139.39],
+    [157.97, 162.16, 170.56, 174.75, 157.97, 162.16, 170.56, 174.75]
   ]]
 }
 ```
@@ -134,10 +121,10 @@
 ### 完整覆盖（含新增项）
 ```json
 {
-  "detectItemIDs": ["8", "7", "22", "23"],
+  "detectItemIDs": ["24", "25", "22", "23"],
   "detectItemParameters": [[
-    [119.794, 140.381, 140.381, 145.358, 119.95, 124.81, 117.039, 134.53],
-    [157.97, 174.75, 162.16, 170.56, 157.97, 166.36, 166.36, 174.75],
+    [119.794, 120.492, 120.492, 125.059, 119.95, 124.81, 134.53, 139.39],
+    [157.97, 162.16, 170.56, 174.75, 157.97, 162.16, 170.56, 174.75],
     [64.57, 70.97, 83.77, 90.17, 64.57, 70.97, 83.77, 90.17],
     [0.12, 0.14, 0.19, 0.22, 0.12, 0.14, 0.19, 0.22]
   ]]
@@ -147,10 +134,10 @@
 ### 字段占位模板（后端编译接入）
 ```json
 {
-  "detectItemIDs": ["8", "7", "22", "23"],
+  "detectItemIDs": ["24", "25", "22", "23"],
   "detectItemParameters": [[
-    ["item8_p0", "item8_p1", "item8_p2", "item8_p3", "item8_p4", "item8_p5", "item8_p6", "item8_p7"],
-    ["item7_p0", "item7_p1", "item7_p2", "item7_p3", "item7_p4", "item7_p5", "item7_p6", "item7_p7"],
+    ["item24_p0", "item24_p1", "item24_p2", "item24_p3", "item24_p4", "item24_p5", "item24_p6", "item24_p7"],
+    ["item25_p0", "item25_p1", "item25_p2", "item25_p3", "item25_p4", "item25_p5", "item25_p6", "item25_p7"],
     ["item22_p0", "item22_p1", "item22_p2", "item22_p3", "item22_p4", "item22_p5", "item22_p6", "item22_p7"],
     ["item23_p0", "item23_p1", "item23_p2", "item23_p3", "item23_p4", "item23_p5", "item23_p6", "item23_p7"]
   ]]
@@ -159,9 +146,10 @@
 
 ## 已可直接上线项 vs 需新增开发项
 - 已可直接上线项：
-- `itemID=8`（ankle dorsiflexion 主计数锚点）
-- `itemID=7`（knee compensation 静态约束）
+- 无（直腿抬高配置过于复杂，旧项无法承载）
 - 需新增开发项：
+- `itemID=24`（ankle dorsiflexion 主计数锚点，替代旧8）
+- `itemID=25`（knee compensation 动态约束，替代旧7）
 - `itemID=22`（hip_abduction）
 - `itemID=23`（knee_symmetry）
 - 需补学习项：
@@ -172,12 +160,12 @@
 - 处理：补充错误样本（每类>=3~5），重跑训练并确认 `covered_error_types` 非空。
 - 冲突2：`hip_abduction`、`knee_symmetry` 在 iOS 现有策略库无等价实现。  
 - 处理：新增 `itemID=22/23` 并在注册表补齐 `item->profile/strategy/schema`。
-- 冲突3：`itemID=7` 为静态策略，仅前2参数生效。  
-- 处理：在后端配置说明中标注“仅 [0],[1] 有效”，避免误解其余槽位。
+- 冲突3：`itemID=7` / `itemID=8` 的槽位不足以承载直腿抬高的 8 槽位评估协议。  
+- 处理：废弃复用方案，全面新增 `itemID=24/25`。
 
 ## 实施顺序
-- 1. 先上线最小组合 `["8","7"]` 验证计数稳定性。
-- 2. 实现并接入 `itemID=22/23`，切换到完整组合。
+- 1. 在 iOS 端实现 `itemID=24/25/22/23`，并支持 8 槽位配置解析。
+- 2. 上线联调计数准确率。
 - 3. 补错误样本重训，产出错误条件后再启用错误告警。
 - 4. 灰度放量并监控计数偏差、误报漏报、性能影响。
 
