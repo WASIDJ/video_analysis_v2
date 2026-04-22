@@ -31,7 +31,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import List, Dict
+from typing import Any, List, Dict
 
 # 添加src到路径
 sys.path.insert(0, str(Path(__file__).parent))
@@ -124,6 +124,28 @@ def create_parser() -> argparse.ArgumentParser:
         help="跳过训练后自动拆分与测试评估"
     )
 
+    parser.add_argument(
+        "--ios-codegen",
+        action="store_true",
+        help="训练成功后执行 iOS 检测项代码生成 dry-run",
+    )
+
+    parser.add_argument(
+        "--ios-codegen-output",
+        help="iOS codegen 输出目录（默认：data/ios_codegen/{action_id}）",
+    )
+
+    parser.add_argument(
+        "--ios-project",
+        help="可选 iOS 项目路径（第一版只读扫描/保留参数）",
+    )
+
+    parser.add_argument(
+        "--ios-codegen-write",
+        action="store_true",
+        help="写入 iOS 项目（第一版默认不开放写入）",
+    )
+
     return parser
 
 
@@ -178,7 +200,11 @@ def build_config_from_args(args) -> BatchConfig:
     )
 
 
-def print_result(result: Dict, artifacts: PostTrainArtifacts | None = None) -> None:
+def print_result(
+    result: Dict[str, Any],
+    artifacts: PostTrainArtifacts | None = None,
+    ios_codegen_result: Any | None = None,
+) -> None:
     """打印处理结果."""
     print("\n" + "=" * 50)
     print("训练结果")
@@ -198,8 +224,25 @@ def print_result(result: Dict, artifacts: PostTrainArtifacts | None = None) -> N
             print(f"✓ 候选版本: {artifacts.candidate_version}")
             print(f"✓ 数据拆分清单: {artifacts.split_manifest_path}")
             print(f"✓ 测试评估结果: {artifacts.evaluation_path}")
+        if ios_codegen_result:
+            if ios_codegen_result.success:
+                print("✓ iOS Codegen: dry-run 完成")
+                print(f"✓ iOS Payload: {ios_codegen_result.payload_path}")
+                if ios_codegen_result.generated_strategies:
+                    print(f"✓ 生成 Swift: {len(ios_codegen_result.generated_strategies)}")
+                    for strategy in ios_codegen_result.generated_strategies:
+                        print(f"  - {strategy}.swift")
+            else:
+                print("✗ iOS Codegen 失败")
+                for error in ios_codegen_result.errors:
+                    print(f"  - {error}")
     else:
         print(f"✗ 训练失败")
+
+    if ios_codegen_result and getattr(ios_codegen_result, "warnings", None):
+        print("\n⚠ iOS Codegen 待确认:")
+        for warning in ios_codegen_result.warnings:
+            print(f"  - {warning}")
 
     if result.get('warnings'):
         print("\n⚠ 警告:")
@@ -262,8 +305,24 @@ def main():
         evaluator = PostTrainEvaluator(data_dir=args.data_dir)
         artifacts = evaluator.evaluate_from_batch_result(config=config, batch_result=result)
 
+    ios_codegen_result = None
+    if result.get("success") and args.ios_codegen:
+        from src.core.ios_codegen import run_ios_codegen
+
+        ios_codegen_output = args.ios_codegen_output or str(
+            Path(args.data_dir) / "ios_codegen" / config.action_id
+        )
+        ios_codegen_result = run_ios_codegen(
+            action_id=config.action_id,
+            action_config_path=result["generated_config_path"],
+            output_dir=ios_codegen_output,
+            evaluation_path=artifacts.evaluation_path if artifacts else None,
+            ios_project=args.ios_project,
+            write=args.ios_codegen_write,
+        )
+
     # 打印结果
-    print_result(result, artifacts=artifacts)
+    print_result(result, artifacts=artifacts, ios_codegen_result=ios_codegen_result)
 
     # 返回码
     sys.exit(0 if result["success"] else 1)

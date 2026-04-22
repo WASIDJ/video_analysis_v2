@@ -1,0 +1,38 @@
+{
+  "metrics": {
+    "ankle_dorsiflexion": {
+      "item_id": "8",
+      "ios_status": "reuse",
+      "profile": "yolo17",
+      "strategy": "AnkleDorsiflexionStrategy",
+      "schema": "item8_dynamic_v1",
+      "parameter_builder": "item8_dynamic_v1"
+    },
+    "knee_flexion_compensation": {
+      "item_id": "7",
+      "ios_status": "reuse",
+      "profile": "yolo17",
+      "strategy": "SideKneeFlexionStaticStrategy",
+      "schema": "item7_static_v1",
+      "parameter_builder": "item7_static_v1"
+    },
+    "hip_abduction": {
+      "item_id": "22",
+      "ios_status": "generate",
+      "profile": "mp33",
+      "strategy": "HipAbductionMP33Strategy",
+      "schema": "range8_v1",
+      "parameter_builder": "range8_v1",
+      "generator": "hip_abduction_mp33_v1"
+    },
+    "knee_symmetry": {
+      "item_id": "23",
+      "ios_status": "generate",
+      "profile": "mp33",
+      "strategy": "KneeSymmetryMP33Strategy",
+      "schema": "range8_v1",
+      "parameter_builder": "range8_v1",
+      "generator": "knee_symmetry_mp33_v1"
+    }
+  }
+}

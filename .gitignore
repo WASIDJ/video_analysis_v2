@@ -63,3 +63,4 @@ output/
 data/
 .venv/
 .omx/
+.codex
