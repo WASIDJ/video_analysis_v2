@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0-static",
+  "action_id": "itb_stretch",
+  "action_name": "髂胫束拉伸",
+  "type": "static",
+  "created_at": "2026-04-22T16:05:16.718074",
+  "metrics": [
+    {
+      "metric_id": "trunk_lateral_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 30.77,
+        "excellent_range": [
+          25.56,
+          35.23
+        ],
+        "normal_range": [
+          3.15,
+          50.43
+        ]
+      }
+    },
+    {
+      "metric_id": "pelvic_obliquity",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 2.37,
+        "excellent_range": [
+          0.9,
+          3.83
+        ],
+        "normal_range": [
+          -14.75,
+          19.14
+        ]
+      }
+    },
+    {
+      "metric_id": "knee_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": false,
+      "thresholds": {
+        "target_value": 136.31,
+        "excellent_range": [
+          131.57,
+          142.23
+        ],
+        "normal_range": [
+          100.34,
+          158.35
+        ]
+      }
+    }
+  ]
+}

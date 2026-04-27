@@ -1,0 +1,16 @@
+{
+  "action_id": "side_plank",
+  "action_name": "侧平板支撑",
+  "metrics": [
+    "trunk_lean",
+    "hip_flexion",
+    "pelvic_tilt"
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/侧平板支撑.mp4",
+      "time_window": [6.07, 17.15]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

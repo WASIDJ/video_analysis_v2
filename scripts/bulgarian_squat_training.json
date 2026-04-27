@@ -1,0 +1,46 @@
+{
+  "action_id": "bulgarian_squat",
+  "action_name_zh": "保加利亚蹲",
+  "videos": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲1.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲2.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲3.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 4
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲4.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 3
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲5.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 1
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲6.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 4
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲7.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 3
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/保加利亚蹲/保加利亚蹲8.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 6
+    }
+  ]
+}

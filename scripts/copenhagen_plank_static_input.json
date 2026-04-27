@@ -1,0 +1,28 @@
+{
+  "action_id": "copenhagen_plank",
+  "action_name": "哥本哈根支撑",
+  "metrics": [
+    {
+      "metric_id": "trunk_lean",
+      "needs_absolute_value": true,
+      "tolerance_offset": 10.0
+    },
+    {
+      "metric_id": "hip_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 10.0
+    },
+    {
+      "metric_id": "pelvic_tilt",
+      "needs_absolute_value": true,
+      "tolerance_offset": 10.0
+    }
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/哥本哈根支撑.mp4",
+      "time_window": [9.12, 16.12]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

@@ -1,0 +1,31 @@
+{
+  "action_id": "reverse_nordic",
+  "action_name_zh": "反北欧挺",
+  "videos": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/反北欧挺/反北欧挺1.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/反北欧挺/反北欧挺2.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 3
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/反北欧挺/反北欧挺3.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/反北欧挺/反北欧挺4.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 1
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/反北欧挺/反北欧挺5.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 3
+    }
+  ]
+}

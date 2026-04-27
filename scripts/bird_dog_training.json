@@ -1,0 +1,31 @@
+{
+  "action_id": "bird_dog",
+  "action_name_zh": "鸟狗式",
+  "videos": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/鸟狗式/鸟狗式1.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/鸟狗式/鸟狗式2.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/鸟狗式/鸟狗式3.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 4
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/鸟狗式/鸟狗式4.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/鸟狗式/鸟狗式5.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 6
+    }
+  ]
+}

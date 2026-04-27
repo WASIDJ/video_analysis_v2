@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0-static",
+  "action_id": "side_stretch",
+  "action_name": "侧腰拉伸",
+  "type": "static",
+  "created_at": "2026-04-22T16:29:27.795056",
+  "metrics": [
+    {
+      "metric_id": "trunk_lateral_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 18.55,
+        "excellent_range": [
+          13.56,
+          19.97
+        ],
+        "normal_range": [
+          12.32,
+          25.06
+        ]
+      }
+    },
+    {
+      "metric_id": "pelvic_obliquity",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 25.37,
+        "excellent_range": [
+          18.14,
+          26.32
+        ],
+        "normal_range": [
+          11.51,
+          31.5
+        ]
+      }
+    }
+  ]
+}

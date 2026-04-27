@@ -1,0 +1,28 @@
+{
+  "action_id": "hamstring_stretch",
+  "action_name": "股绳肌拉伸",
+  "metrics": [
+    {
+      "metric_id": "knee_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "trunk_lean",
+      "needs_absolute_value": true,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "hip_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 15.0
+    }
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/腘绳肌拉伸.mp4",
+      "time_window": [10.15, 21.06]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

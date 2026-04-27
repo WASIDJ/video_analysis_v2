@@ -1,0 +1,28 @@
+{
+  "action_id": "itb_stretch",
+  "action_name": "髂胫束拉伸",
+  "metrics": [
+    {
+      "metric_id": "trunk_lateral_flexion",
+      "needs_absolute_value": true,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "pelvic_obliquity",
+      "needs_absolute_value": true,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "knee_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 15.0
+    }
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/髂胫束拉伸1.mp4",
+      "time_window": [13.03, 18.01]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0-static",
+  "action_id": "quadriceps_stretch",
+  "action_name": "股四头肌拉伸",
+  "type": "static",
+  "created_at": "2026-04-22T11:11:22.582701",
+  "metrics": [
+    {
+      "metric_id": "knee_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": false,
+      "thresholds": {
+        "target_value": 56.53,
+        "excellent_range": [
+          56.01,
+          72.02
+        ],
+        "normal_range": [
+          30.35,
+          85.66
+        ]
+      }
+    },
+    {
+      "metric_id": "trunk_lean",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 7.15,
+        "excellent_range": [
+          5.8,
+          7.61
+        ],
+        "normal_range": [
+          -4.41,
+          18.43
+        ]
+      }
+    },
+    {
+      "metric_id": "hip_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": false,
+      "thresholds": {
+        "target_value": 162.55,
+        "excellent_range": [
+          159.66,
+          171.55
+        ],
+        "normal_range": [
+          144.11,
+          191.67
+        ]
+      }
+    }
+  ]
+}
