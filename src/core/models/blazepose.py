@@ -121,6 +121,7 @@ class BlazePoseEstimator(BasePoseEstimator):
         self._PoseLandmarker = None
         self._PoseLandmarkerOptions = None
         self._VisionRunningMode = None
+        self._frame_timestamp_ms = 0
 
     @property
     def keypoint_names(self) -> List[str]:
@@ -254,7 +255,12 @@ class BlazePoseEstimator(BasePoseEstimator):
             mp_image = Image(image_format=ImageFormat.SRGB, data=rgb_frame)
 
             # 推理 (VIDEO模式需要传入时间戳)
-            timestamp_ms = 0  # 单帧处理使用0
+            if not hasattr(self, '_frame_timestamp_ms'):
+                self._frame_timestamp_ms = 0
+            
+            timestamp_ms = self._frame_timestamp_ms
+            self._frame_timestamp_ms += 33  # 模拟 30fps 增加时间戳
+            
             result = self._landmarker.detect_for_video(mp_image, timestamp_ms)
 
             if not result.pose_landmarks:
@@ -313,6 +319,7 @@ class BlazePoseEstimator(BasePoseEstimator):
         if self._is_initialized and self._landmarker:
             self._landmarker.close()
             self._is_initialized = False
+            self._frame_timestamp_ms = 0
             
         if not self._is_initialized:
             self.initialize()

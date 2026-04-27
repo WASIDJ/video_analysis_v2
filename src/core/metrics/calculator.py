@@ -282,10 +282,45 @@ class MetricsCalculator:
         left_range = self._calculate_side_range(pose_sequence, "left")
         right_range = self._calculate_side_range(pose_sequence, "right")
 
-        if left_range > right_range:
-            return "left"
-        else:
-            return "right"
+        if abs(left_range - right_range) > 0.05:
+            return "left" if left_range > right_range else "right"
+            
+        # [静态启发式规则] 当运动幅度都很小（比如纯静态动作），引入角度启发式
+        # 兼容 "quadriceps_stretch" 和配置文件中可能带来的 action_id 
+        # (比如由于 action_id 和 action_name 映射导致没有被设置对)
+        if ("quadriceps" in str(self.action_id).lower() or "stretch" in str(self.action_id).lower()) and len(pose_sequence.frames) > 0:
+            # 股四头肌拉伸：哪只脚弯曲得更厉害（角度更小），哪只脚就是拉伸脚
+            first_frame = pose_sequence.frames[0]
+            
+            def get_knee_angle(side):
+                hip = first_frame.get_keypoint(f"{side}_hip")
+                knee = first_frame.get_keypoint(f"{side}_knee")
+                ankle = first_frame.get_keypoint(f"{side}_ankle")
+                # 必须确保关键点存在且置信度不为 None
+                if hip and knee and ankle and hip.confidence is not None and knee.confidence is not None and ankle.confidence is not None:
+                    v1 = np.array([hip.x - knee.x, hip.y - knee.y])
+                    v2 = np.array([ankle.x - knee.x, ankle.y - knee.y])
+                    norm1, norm2 = np.linalg.norm(v1), np.linalg.norm(v2)
+                    if norm1 > 1e-6 and norm2 > 1e-6:
+                        cos_theta = np.clip(np.dot(v1, v2) / (norm1 * norm2), -1.0, 1.0)
+                        return np.degrees(np.arccos(cos_theta))
+                return 180.0
+                
+            left_angle = get_knee_angle("left")
+            right_angle = get_knee_angle("right")
+            
+            # 【基于阈值的锁定机制】: 差值大于 20 度才锁定，排除站立时的微小误差
+            if abs(left_angle - right_angle) > 20.0:
+                return "left" if left_angle < right_angle else "right"
+            else:
+                return None  # 角度差不够大，保持未锁定状态 (Unlocked)
+
+        # 默认 fallback
+        # 如果是单帧流式处理且未能通过前面任何规则锁定，保持未锁定
+        if len(pose_sequence.frames) <= 1:
+            return None
+            
+        return "right"
 
     def _calculate_side_range(self, pose_sequence: PoseSequence, side: str) -> float:
         """计算一侧关键点的运动范围."""

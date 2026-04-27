@@ -1,0 +1,493 @@
+{
+  "schema_version": "3.0.0",
+  "action_id": "bird_dog",
+  "action_name": "鸟狗式",
+  "action_name_zh": "鸟狗式",
+  "description": "通过训练自动生成的鸟狗式配置",
+  "version": "3.0.0-trained",
+  "created_at": "2026-04-20T23:28:48.453436",
+  "updated_at": "2026-04-20T23:28:48.453441",
+  "phases": [
+    {
+      "phase_id": "start",
+      "phase_name": "起始位置",
+      "description": "",
+      "detection_params": {
+        "key_metric": "trunk_lean",
+        "pattern": "rising"
+      },
+      "entry_conditions": [
+        {
+          "type": "derivative",
+          "metric": "trunk_lean",
+          "operator": "gt",
+          "value": 0
+        }
+      ],
+      "exit_conditions": [],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "execution",
+      "phase_name": "执行阶段",
+      "description": "",
+      "detection_params": {
+        "key_metric": "trunk_lean",
+        "pattern": "rising_to_peak"
+      },
+      "entry_conditions": [
+        {
+          "type": "derivative",
+          "metric": "trunk_lean",
+          "operator": "gt",
+          "value": 5.0
+        }
+      ],
+      "exit_conditions": [
+        {
+          "type": "derivative",
+          "metric": "trunk_lean",
+          "operator": "lt",
+          "value": 0
+        }
+      ],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "hold",
+      "phase_name": "保持阶段",
+      "description": "",
+      "detection_params": {
+        "key_metric": "trunk_lean",
+        "pattern": "at_peak",
+        "threshold": 74.38913080871214
+      },
+      "entry_conditions": [
+        {
+          "type": "threshold",
+          "metric": "trunk_lean",
+          "operator": "gte",
+          "value": 74.38913080871214
+        }
+      ],
+      "exit_conditions": [
+        {
+          "type": "threshold",
+          "metric": "trunk_lean",
+          "operator": "lt",
+          "value": 70.66967426827652
+        }
+      ],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "return",
+      "phase_name": "返回阶段",
+      "description": "",
+      "detection_params": {
+        "key_metric": "trunk_lean",
+        "pattern": "falling"
+      },
+      "entry_conditions": [
+        {
+          "type": "derivative",
+          "metric": "trunk_lean",
+          "operator": "lt",
+          "value": 0
+        }
+      ],
+      "exit_conditions": [],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "end",
+      "phase_name": "结束位置",
+      "description": "",
+      "detection_params": {
+        "key_metric": "trunk_lean",
+        "pattern": "at_valley",
+        "threshold": 90.03847524675425
+      },
+      "entry_conditions": [
+        {
+          "type": "threshold",
+          "metric": "trunk_lean",
+          "operator": "lte",
+          "value": 90.03847524675425
+        }
+      ],
+      "exit_conditions": [],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "hip_flexion",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "normal_range": [
+          90.76,
+          146.68
+        ],
+        "excellent_range": [
+          104.74,
+          132.7
+        ],
+        "pass_range": [
+          74.6,
+          179.59
+        ],
+        "target_value": 118.72
+      },
+      "error_conditions": [],
+      "custom_params": {},
+      "weight": 1.0
+    },
+    {
+      "metric_id": "trunk_lean",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "normal_range": [
+          78.32,
+          81.69
+        ],
+        "excellent_range": [
+          79.16,
+          80.85
+        ],
+        "pass_range": [
+          66.66,
+          84.91
+        ],
+        "target_value": 80.01
+      },
+      "error_conditions": [],
+      "custom_params": {},
+      "weight": 1.0
+    }
+  ],
+  "global_params": {
+    "min_phase_duration": 0.2,
+    "enable_phase_detection": true,
+    "use_viewpoint_analysis": true,
+    "auto_select_side": true,
+    "auto_generated": true
+  },
+  "cycle_definition": {
+    "phase_sequence": [
+      "start",
+      "execution",
+      "hold",
+      "return",
+      "end"
+    ],
+    "start_phase": "start",
+    "end_phase": "start",
+    "required_phases": [
+      "hold"
+    ],
+    "cycle_mode": "closed",
+    "min_cycle_duration": 1.0,
+    "max_cycle_duration": 30.0
+  },
+  "count_layer": {
+    "phase_mode": "p1p2",
+    "control_metric": "knee_flexion",
+    "polarity": "valley_to_peak_to_valley",
+    "thresholds": {
+      "enter_p1": 120.0,
+      "exit_p1": 150.0,
+      "enter_p2": 140.0,
+      "exit_p2": 100.0
+    },
+    "timing": {
+      "min_phase_duration_sec": 0.2,
+      "max_phase_duration_sec": 5.0,
+      "min_cycle_distance_frames": 40
+    },
+    "aggregation": {
+      "method": "manual_override",
+      "train_video_count": 4,
+      "param_ci": {
+        "enter_p1": [
+          120.0,
+          120.0
+        ],
+        "exit_p1": [
+          150.0,
+          150.0
+        ],
+        "enter_p2": [
+          140.0,
+          140.0
+        ],
+        "exit_p2": [
+          100.0,
+          100.0
+        ]
+      }
+    },
+    "source": {
+      "action_id": "bird_dog",
+      "dataset_split": "train"
+    }
+  },
+  "semantic_layer": {
+    "enabled": true,
+    "phases": [
+      {
+        "phase_id": "start",
+        "phase_name": "起始位置",
+        "description": "",
+        "detection_params": {
+          "key_metric": "trunk_lean",
+          "pattern": "rising"
+        },
+        "entry_conditions": [
+          {
+            "type": "derivative",
+            "metric": "trunk_lean",
+            "operator": "gt",
+            "value": 0
+          }
+        ],
+        "exit_conditions": [],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "execution",
+        "phase_name": "执行阶段",
+        "description": "",
+        "detection_params": {
+          "key_metric": "trunk_lean",
+          "pattern": "rising_to_peak"
+        },
+        "entry_conditions": [
+          {
+            "type": "derivative",
+            "metric": "trunk_lean",
+            "operator": "gt",
+            "value": 5.0
+          }
+        ],
+        "exit_conditions": [
+          {
+            "type": "derivative",
+            "metric": "trunk_lean",
+            "operator": "lt",
+            "value": 0
+          }
+        ],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "hold",
+        "phase_name": "保持阶段",
+        "description": "",
+        "detection_params": {
+          "key_metric": "trunk_lean",
+          "pattern": "at_peak",
+          "threshold": 74.38913080871214
+        },
+        "entry_conditions": [
+          {
+            "type": "threshold",
+            "metric": "trunk_lean",
+            "operator": "gte",
+            "value": 74.38913080871214
+          }
+        ],
+        "exit_conditions": [
+          {
+            "type": "threshold",
+            "metric": "trunk_lean",
+            "operator": "lt",
+            "value": 70.66967426827652
+          }
+        ],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "return",
+        "phase_name": "返回阶段",
+        "description": "",
+        "detection_params": {
+          "key_metric": "trunk_lean",
+          "pattern": "falling"
+        },
+        "entry_conditions": [
+          {
+            "type": "derivative",
+            "metric": "trunk_lean",
+            "operator": "lt",
+            "value": 0
+          }
+        ],
+        "exit_conditions": [],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "end",
+        "phase_name": "结束位置",
+        "description": "",
+        "detection_params": {
+          "key_metric": "trunk_lean",
+          "pattern": "at_valley",
+          "threshold": 90.03847524675425
+        },
+        "entry_conditions": [
+          {
+            "type": "threshold",
+            "metric": "trunk_lean",
+            "operator": "lte",
+            "value": 90.03847524675425
+          }
+        ],
+        "exit_conditions": [],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      }
+    ]
+  },
+  "compatibility": {
+    "phase_alias_map": {
+      "execution": "p1",
+      "hold": "p1",
+      "return": "p2"
+    }
+  },
+  "metadata": {
+    "metric_selection_info": {
+      "total_candidates": 13,
+      "scored_metrics": 13,
+      "passed_threshold": 7,
+      "final_core": 2,
+      "final_aux": 0,
+      "scoring_details": [
+        {
+          "metric_id": "hip_flexion",
+          "stability": 0.467,
+          "discrimination": 1.0,
+          "overall": 0.64,
+          "reason": ""
+        },
+        {
+          "metric_id": "trunk_lean",
+          "stability": 0.434,
+          "discrimination": 1.0,
+          "overall": 0.63,
+          "reason": ""
+        },
+        {
+          "metric_id": "knee_flexion",
+          "stability": 0.424,
+          "discrimination": 1.0,
+          "overall": 0.627,
+          "reason": ""
+        },
+        {
+          "metric_id": "knee_flexion_compensation",
+          "stability": 0.424,
+          "discrimination": 1.0,
+          "overall": 0.627,
+          "reason": ""
+        },
+        {
+          "metric_id": "ankle_dorsiflexion",
+          "stability": 0.424,
+          "discrimination": 1.0,
+          "overall": 0.627,
+          "reason": ""
+        },
+        {
+          "metric_id": "ankle_dorsiflexion_lateral",
+          "stability": 0.424,
+          "discrimination": 1.0,
+          "overall": 0.627,
+          "reason": ""
+        },
+        {
+          "metric_id": "hip_abduction",
+          "stability": 0.225,
+          "discrimination": 1.0,
+          "overall": 0.568,
+          "reason": "稳定性不足 (0.23 < 0.3)"
+        },
+        {
+          "metric_id": "hip_range_of_motion",
+          "stability": 0.408,
+          "discrimination": 1.0,
+          "overall": 0.522,
+          "reason": ""
+        },
+        {
+          "metric_id": "leg_elevation_height",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.5,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "pelvic_tilt",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.44,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "pelvic_obliquity",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.44,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "trunk_lateral_flexion",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.44,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "hip_external_rotation",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.4,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        }
+      ]
+    },
+    "training_info": {
+      "schema_version": "v2.0",
+      "action_id": "bird_dog",
+      "dataset_version": "v1.0",
+      "candidate_version": "20260420_v1.0",
+      "created_at": "2026-04-20T23:28:48.453553",
+      "standard_samples": 5,
+      "error_types": [],
+      "total_error_conditions": 0,
+      "confidence": 0.9004264278558232
+    }
+  }
+}

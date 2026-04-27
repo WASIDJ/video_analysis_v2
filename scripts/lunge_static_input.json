@@ -1,0 +1,28 @@
+{
+  "action_id": "lunge",
+  "action_name": "弓箭步",
+  "metrics": [
+    {
+      "metric_id": "knee_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "trunk_lean",
+      "needs_absolute_value": true,
+      "tolerance_offset": 10.0
+    },
+    {
+      "metric_id": "hip_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 15.0
+    }
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/弓箭步.mp4",
+      "time_window": [7.16, 16.23]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

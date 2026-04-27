@@ -1,0 +1,27 @@
+{
+  "action_id": "single_leg_stance",
+  "action_name": "单脚站立",
+  "metrics": [
+    {
+      "metric_id": "leg_elevation_height",
+      "tolerance_offset": 0.2
+    },
+    {
+      "metric_id": "pelvic_obliquity",
+      "needs_absolute_value": true,
+      "tolerance_offset": 10.0
+    },
+    {
+      "metric_id": "trunk_lateral_flexion",
+      "needs_absolute_value": true,
+      "tolerance_offset": 10.0
+    }
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/单脚站立.mp4",
+      "time_window": [3.28, 14.01]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

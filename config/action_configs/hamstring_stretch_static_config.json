@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0-static",
+  "action_id": "hamstring_stretch",
+  "action_name": "腘绳肌拉伸",
+  "type": "static",
+  "created_at": "2026-04-22T15:23:49.011221",
+  "metrics": [
+    {
+      "metric_id": "knee_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": false,
+      "thresholds": {
+        "target_value": 173.13,
+        "excellent_range": [
+          163.27,
+          178.01
+        ],
+        "normal_range": [
+          136.53,
+          178.96
+        ]
+      }
+    },
+    {
+      "metric_id": "trunk_lean",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 33.69,
+        "excellent_range": [
+          23.85,
+          45.95
+        ],
+        "normal_range": [
+          12.32,
+          52.08
+        ]
+      }
+    },
+    {
+      "metric_id": "hip_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": false,
+      "thresholds": {
+        "target_value": 86.03,
+        "excellent_range": [
+          83.39,
+          130.52
+        ],
+        "normal_range": [
+          76.87,
+          140.07
+        ]
+      }
+    }
+  ]
+}

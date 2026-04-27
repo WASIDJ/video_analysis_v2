@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0-static",
+  "action_id": "plank",
+  "action_name": "平板支撑",
+  "type": "static",
+  "created_at": "2026-04-21T11:03:38.008010",
+  "metrics": [
+    {
+      "metric_id": "trunk_lean",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 85.72,
+        "excellent_range": [
+          82.17,
+          88.66
+        ],
+        "normal_range": [
+          75.45,
+          94.12
+        ]
+      }
+    },
+    {
+      "metric_id": "hip_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": false,
+      "thresholds": {
+        "target_value": 137.24,
+        "excellent_range": [
+          130.47,
+          141.94
+        ],
+        "normal_range": [
+          120.97,
+          180
+        ]
+      }
+    }
+  ]
+}

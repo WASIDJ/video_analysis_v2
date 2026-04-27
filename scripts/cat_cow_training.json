@@ -1,0 +1,31 @@
+{
+  "action_id": "cat_cow",
+  "action_name_zh": "猫式伸展",
+  "videos": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/猫式伸展/猫式伸展1.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/猫式伸展/猫式伸展2.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 1
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/猫式伸展/猫式伸展3.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/猫式伸展/猫式伸展4.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    },
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/动态/猫式伸展/猫式伸展5.mp4",
+      "tags": ["standard"],
+      "ground_truth_reps": 2
+    }
+  ]
+}

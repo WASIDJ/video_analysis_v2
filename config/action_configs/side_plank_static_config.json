@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0-static",
+  "action_id": "side_plank",
+  "action_name": "侧平板支撑",
+  "type": "static",
+  "created_at": "2026-04-21T15:36:10.415649",
+  "metrics": [
+    {
+      "metric_id": "trunk_lean",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 72.35,
+        "excellent_range": [
+          62.17,
+          73.88
+        ],
+        "normal_range": [
+          55.65,
+          79.14
+        ]
+      }
+    },
+    {
+      "metric_id": "hip_flexion",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": false,
+      "thresholds": {
+        "target_value": 169.89,
+        "excellent_range": [
+          162.83,
+          172.14
+        ],
+        "normal_range": [
+          149.82,
+          181.62
+        ]
+      }
+    },
+    {
+      "metric_id": "pelvic_tilt",
+      "enabled": true,
+      "evaluation_phase": "holding",
+      "needs_absolute_value": true,
+      "thresholds": {
+        "target_value": 1.53,
+        "excellent_range": [
+          -7.09,
+          2.97
+        ],
+        "normal_range": [
+          -13.55,
+          8.22
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "action_id": "quadriceps_stretch",
+  "action_name": "股四头肌拉伸",
+  "metrics": [
+    {
+      "metric_id": "knee_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "trunk_lean",
+      "needs_absolute_value": true,
+      "tolerance_offset": 10.0
+    },
+    {
+      "metric_id": "hip_flexion",
+      "needs_absolute_value": false,
+      "tolerance_offset": 15.0
+    }
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/股四头肌拉伸1.mp4",
+      "time_window": [16.13, 29.18]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

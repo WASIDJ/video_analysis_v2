@@ -61,12 +61,13 @@ class P1P2RealtimeCounter:
         self.p2_entry_candidate = -1
 
         # 轻量滤波和滞回参数，降低阈值抖动导致的漏计/误计
-        self.ema_alpha = 0.25
+        self.ema_alpha = 0.4  # 提高响应速度，原为0.25导致严重滞后
         self.ema_value: float | None = None
         self.prev_ema: float | None = None
         self.up_margin = max(0.8, 0.03 * max(abs(self.exit_p1 - self.enter_p1), 1.0))
         self.down_margin = max(0.8, 0.03 * max(abs(self.enter_p2 - self.exit_p2), 1.0))
-        self.min_phase_frames = max(2, int(min_phase_duration_sec * fps))
+        # debounce 帧数不应等同于整个 phase 的最小持续时间，缩短为约 2-3 帧
+        self.debounce_frames = max(2, int(min_phase_duration_sec * fps * 0.4))
 
     def update(self, value: float, frame_idx: int) -> tuple[int, str]:
         if np.isnan(value):
@@ -95,10 +96,10 @@ class P1P2RealtimeCounter:
 
         if self.phase == "P2_IDLE":
             margin_th = self.enter_p1 + self.up_margin if is_valley_to_peak else self.enter_p1 - self.up_margin
-            if _cross_up(smooth_value, margin_th) and is_rising:
+            if _cross_up(smooth_value, margin_th):
                 if self.p1_entry_candidate < 0:
                     self.p1_entry_candidate = frame_idx
-                if frame_idx - self.p1_entry_candidate >= self.min_phase_frames:
+                if frame_idx - self.p1_entry_candidate >= self.debounce_frames:
                     self.phase = "P1_RISE"
                     self.p1_entry_candidate = -1
             else:
@@ -109,13 +110,13 @@ class P1P2RealtimeCounter:
 
         if self.phase == "P1_RISE" and self.reached_peak:
             margin_th = self.enter_p2 - self.down_margin if is_valley_to_peak else self.enter_p2 + self.down_margin
-            if _cross_down(smooth_value, margin_th) and is_falling:
+            if _cross_down(smooth_value, margin_th):
                 if self.p2_entry_candidate < 0:
                     self.p2_entry_candidate = frame_idx
-                if frame_idx - self.p2_entry_candidate >= self.min_phase_frames:
+                if frame_idx - self.p2_entry_candidate >= self.debounce_frames:
                     self.phase = "P2_RETURN"
                     self.p2_entry_candidate = -1
-            elif self.phase == "P1_RISE":
+            else:
                 self.p2_entry_candidate = -1
 
         # 抗抖动：如果短暂回升，继续留在 P1

@@ -1,0 +1,28 @@
+{
+  "action_id": "side_stretch",
+  "action_name": "侧腰拉伸",
+  "metrics": [
+    {
+      "metric_id": "trunk_lateral_flexion",
+      "needs_absolute_value": true,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "pelvic_obliquity",
+      "needs_absolute_value": true,
+      "tolerance_offset": 15.0
+    },
+    {
+      "metric_id": "trunk_lean",
+      "needs_absolute_value": true,
+      "tolerance_offset": 15.0
+    }
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/侧腰拉伸.mp4",
+      "time_window": [9.07, 13.10]
+    }
+  ],
+  "tolerance_offset": 5.0
+}

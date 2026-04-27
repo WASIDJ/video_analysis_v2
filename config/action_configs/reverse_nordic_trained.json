@@ -1,0 +1,493 @@
+{
+  "schema_version": "3.0.0",
+  "action_id": "reverse_nordic",
+  "action_name": "反北欧挺",
+  "action_name_zh": "反北欧挺",
+  "description": "通过训练自动生成的反北欧挺配置",
+  "version": "3.0.0-trained",
+  "created_at": "2026-04-20T15:41:48.910552",
+  "updated_at": "2026-04-20T15:41:48.910556",
+  "phases": [
+    {
+      "phase_id": "start",
+      "phase_name": "起始位置",
+      "description": "",
+      "detection_params": {
+        "key_metric": "hip_flexion",
+        "pattern": "rising"
+      },
+      "entry_conditions": [
+        {
+          "type": "derivative",
+          "metric": "hip_flexion",
+          "operator": "gt",
+          "value": 0
+        }
+      ],
+      "exit_conditions": [],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "execution",
+      "phase_name": "执行阶段",
+      "description": "",
+      "detection_params": {
+        "key_metric": "hip_flexion",
+        "pattern": "rising_to_peak"
+      },
+      "entry_conditions": [
+        {
+          "type": "derivative",
+          "metric": "hip_flexion",
+          "operator": "gt",
+          "value": 5.0
+        }
+      ],
+      "exit_conditions": [
+        {
+          "type": "derivative",
+          "metric": "hip_flexion",
+          "operator": "lt",
+          "value": 0
+        }
+      ],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "hold",
+      "phase_name": "保持阶段",
+      "description": "",
+      "detection_params": {
+        "key_metric": "hip_flexion",
+        "pattern": "at_peak",
+        "threshold": 155.85404760485048
+      },
+      "entry_conditions": [
+        {
+          "type": "threshold",
+          "metric": "hip_flexion",
+          "operator": "gte",
+          "value": 155.85404760485048
+        }
+      ],
+      "exit_conditions": [
+        {
+          "type": "threshold",
+          "metric": "hip_flexion",
+          "operator": "lt",
+          "value": 148.06134522460795
+        }
+      ],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "return",
+      "phase_name": "返回阶段",
+      "description": "",
+      "detection_params": {
+        "key_metric": "hip_flexion",
+        "pattern": "falling"
+      },
+      "entry_conditions": [
+        {
+          "type": "derivative",
+          "metric": "hip_flexion",
+          "operator": "lt",
+          "value": 0
+        }
+      ],
+      "exit_conditions": [],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    },
+    {
+      "phase_id": "end",
+      "phase_name": "结束位置",
+      "description": "",
+      "detection_params": {
+        "key_metric": "hip_flexion",
+        "pattern": "at_valley",
+        "threshold": 179.60205462701538
+      },
+      "entry_conditions": [
+        {
+          "type": "threshold",
+          "metric": "hip_flexion",
+          "operator": "lte",
+          "value": 179.60205462701538
+        }
+      ],
+      "exit_conditions": [],
+      "stability_checks": [],
+      "max_duration": null,
+      "min_duration": null
+    }
+  ],
+  "metrics": [
+    {
+      "metric_id": "hip_flexion",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "normal_range": [
+          158.36,
+          172.81
+        ],
+        "excellent_range": [
+          161.97,
+          169.2
+        ],
+        "pass_range": [
+          118.39,
+          179.71
+        ],
+        "target_value": 165.58
+      },
+      "error_conditions": [],
+      "custom_params": {},
+      "weight": 1.0
+    },
+    {
+      "metric_id": "hip_external_rotation",
+      "enabled": true,
+      "evaluation_phase": "hold",
+      "thresholds": {
+        "normal_range": [
+          53.37,
+          64.67
+        ],
+        "excellent_range": [
+          56.19,
+          61.84
+        ],
+        "pass_range": [
+          -15.48,
+          70.68
+        ],
+        "target_value": 59.02
+      },
+      "error_conditions": [],
+      "custom_params": {},
+      "weight": 1.0
+    }
+  ],
+  "global_params": {
+    "min_phase_duration": 0.2,
+    "enable_phase_detection": true,
+    "use_viewpoint_analysis": true,
+    "auto_select_side": true,
+    "auto_generated": true
+  },
+  "cycle_definition": {
+    "phase_sequence": [
+      "start",
+      "execution",
+      "hold",
+      "return",
+      "end"
+    ],
+    "start_phase": "start",
+    "end_phase": "start",
+    "required_phases": [
+      "hold"
+    ],
+    "cycle_mode": "closed",
+    "min_cycle_duration": 1.0,
+    "max_cycle_duration": 30.0
+  },
+  "count_layer": {
+    "phase_mode": "p1p2",
+    "control_metric": "hip_flexion",
+    "polarity": "valley_to_peak_to_valley",
+    "thresholds": {
+      "enter_p1": 164.93,
+      "exit_p1": 174.001,
+      "enter_p2": 171.734,
+      "exit_p2": 163.797
+    },
+    "timing": {
+      "min_phase_duration_sec": 0.2,
+      "max_phase_duration_sec": 5.0,
+      "min_cycle_distance_frames": 72
+    },
+    "aggregation": {
+      "method": "median_iqr",
+      "train_video_count": 4,
+      "param_ci": {
+        "enter_p1": [
+          156.421,
+          167.997
+        ],
+        "exit_p1": [
+          170.731,
+          175.15
+        ],
+        "enter_p2": [
+          167.154,
+          173.362
+        ],
+        "exit_p2": [
+          154.632,
+          167.103
+        ]
+      }
+    },
+    "source": {
+      "action_id": "reverse_nordic",
+      "dataset_split": "train"
+    }
+  },
+  "semantic_layer": {
+    "enabled": true,
+    "phases": [
+      {
+        "phase_id": "start",
+        "phase_name": "起始位置",
+        "description": "",
+        "detection_params": {
+          "key_metric": "hip_flexion",
+          "pattern": "rising"
+        },
+        "entry_conditions": [
+          {
+            "type": "derivative",
+            "metric": "hip_flexion",
+            "operator": "gt",
+            "value": 0
+          }
+        ],
+        "exit_conditions": [],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "execution",
+        "phase_name": "执行阶段",
+        "description": "",
+        "detection_params": {
+          "key_metric": "hip_flexion",
+          "pattern": "rising_to_peak"
+        },
+        "entry_conditions": [
+          {
+            "type": "derivative",
+            "metric": "hip_flexion",
+            "operator": "gt",
+            "value": 5.0
+          }
+        ],
+        "exit_conditions": [
+          {
+            "type": "derivative",
+            "metric": "hip_flexion",
+            "operator": "lt",
+            "value": 0
+          }
+        ],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "hold",
+        "phase_name": "保持阶段",
+        "description": "",
+        "detection_params": {
+          "key_metric": "hip_flexion",
+          "pattern": "at_peak",
+          "threshold": 155.85404760485048
+        },
+        "entry_conditions": [
+          {
+            "type": "threshold",
+            "metric": "hip_flexion",
+            "operator": "gte",
+            "value": 155.85404760485048
+          }
+        ],
+        "exit_conditions": [
+          {
+            "type": "threshold",
+            "metric": "hip_flexion",
+            "operator": "lt",
+            "value": 148.06134522460795
+          }
+        ],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "return",
+        "phase_name": "返回阶段",
+        "description": "",
+        "detection_params": {
+          "key_metric": "hip_flexion",
+          "pattern": "falling"
+        },
+        "entry_conditions": [
+          {
+            "type": "derivative",
+            "metric": "hip_flexion",
+            "operator": "lt",
+            "value": 0
+          }
+        ],
+        "exit_conditions": [],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      },
+      {
+        "phase_id": "end",
+        "phase_name": "结束位置",
+        "description": "",
+        "detection_params": {
+          "key_metric": "hip_flexion",
+          "pattern": "at_valley",
+          "threshold": 179.60205462701538
+        },
+        "entry_conditions": [
+          {
+            "type": "threshold",
+            "metric": "hip_flexion",
+            "operator": "lte",
+            "value": 179.60205462701538
+          }
+        ],
+        "exit_conditions": [],
+        "stability_checks": [],
+        "max_duration": null,
+        "min_duration": null
+      }
+    ]
+  },
+  "compatibility": {
+    "phase_alias_map": {
+      "execution": "p1",
+      "hold": "p1",
+      "return": "p2"
+    }
+  },
+  "metadata": {
+    "metric_selection_info": {
+      "total_candidates": 13,
+      "scored_metrics": 13,
+      "passed_threshold": 5,
+      "final_core": 2,
+      "final_aux": 0,
+      "scoring_details": [
+        {
+          "metric_id": "hip_flexion",
+          "stability": 0.444,
+          "discrimination": 1.0,
+          "overall": 0.633,
+          "reason": ""
+        },
+        {
+          "metric_id": "ankle_dorsiflexion",
+          "stability": 0.416,
+          "discrimination": 1.0,
+          "overall": 0.625,
+          "reason": ""
+        },
+        {
+          "metric_id": "ankle_dorsiflexion_lateral",
+          "stability": 0.416,
+          "discrimination": 1.0,
+          "overall": 0.625,
+          "reason": ""
+        },
+        {
+          "metric_id": "leg_elevation_height",
+          "stability": 0.4,
+          "discrimination": 1.0,
+          "overall": 0.62,
+          "reason": ""
+        },
+        {
+          "metric_id": "knee_flexion",
+          "stability": 0.279,
+          "discrimination": 1.0,
+          "overall": 0.584,
+          "reason": "稳定性不足 (0.28 < 0.3)"
+        },
+        {
+          "metric_id": "knee_flexion_compensation",
+          "stability": 0.279,
+          "discrimination": 1.0,
+          "overall": 0.584,
+          "reason": "稳定性不足 (0.28 < 0.3)"
+        },
+        {
+          "metric_id": "trunk_lean",
+          "stability": 0.173,
+          "discrimination": 1.0,
+          "overall": 0.552,
+          "reason": "稳定性不足 (0.17 < 0.3)"
+        },
+        {
+          "metric_id": "hip_external_rotation",
+          "stability": 0.335,
+          "discrimination": 1.0,
+          "overall": 0.5,
+          "reason": ""
+        },
+        {
+          "metric_id": "hip_abduction",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.5,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "pelvic_tilt",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.44,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "pelvic_obliquity",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.44,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "trunk_lateral_flexion",
+          "stability": 0.0,
+          "discrimination": 1.0,
+          "overall": 0.44,
+          "reason": "稳定性不足 (0.00 < 0.3)"
+        },
+        {
+          "metric_id": "hip_range_of_motion",
+          "stability": 0.063,
+          "discrimination": 1.0,
+          "overall": 0.419,
+          "reason": "稳定性不足 (0.06 < 0.3)"
+        }
+      ]
+    },
+    "training_info": {
+      "schema_version": "v2.0",
+      "action_id": "reverse_nordic",
+      "dataset_version": "v1.0",
+      "candidate_version": "20260420_v1.0",
+      "created_at": "2026-04-20T15:41:48.910595",
+      "standard_samples": 5,
+      "error_types": [],
+      "total_error_conditions": 0,
+      "confidence": 0.916165878117042
+    }
+  }
+}

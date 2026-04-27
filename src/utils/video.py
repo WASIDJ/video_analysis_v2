@@ -49,9 +49,10 @@ def get_video_rotation(video_path: str) -> int:
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         cap.release()
 
-        # 如果高度大于宽度，可能是竖屏视频
-        if height > width:
-            return 90
+        # 如果高度大于宽度，可能是竖屏视频，通常手机拍摄的竖屏视频元数据可能会丢失
+        # 但我们不再强行假定所有 height > width 的视频都是 90 度旋转的。
+        # 因为有些视频确实就是竖屏分辨率存储，不需要再额外旋转 90 度。
+        # 强行旋转会导致人物横躺。因此这里取消仅依据宽高比强制旋转 90 度的回退逻辑。
     except Exception:
         pass
 

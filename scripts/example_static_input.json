@@ -1,0 +1,16 @@
+{
+  "action_id": "plank",
+  "action_name": "平板支撑",
+  "metrics": [
+    "trunk_lean",
+    "hip_flexion",
+    "shoulder_flexion"
+  ],
+  "video_samples": [
+    {
+      "video_path": "/Users/zzh/workspace/banlan/videos/Apr1-23Actions/add_ons/静态/平板支撑.mp4",
+      "time_window": [7.11, 21.10]
+    }
+  ],
+  "tolerance_offset": 5.0
+}
